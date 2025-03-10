@@ -17,6 +17,18 @@ public final class Sensor extends Node {
         this.capacity = capacity;
     }
 
+    // TODO check if ok
+    public int getRealReciveVolumne(int sensorReceivingVolume)
+    {
+        return Math.min(this.capacity * 3, sensorReceivingVolume);
+    }
+
+    // TODO check if ok
+    public int getMaxTransmition()
+    {
+        return this.capacity * 3;
+    }
+
     @Override
     public boolean isCenter() {
         return false;

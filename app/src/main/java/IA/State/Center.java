@@ -8,6 +8,11 @@ public final class Center extends Node {
         super(cx, cy, MAX_CONNECTIONS);
     }
 
+    // TODO check if ok
+    public int getRealReciveVolumne(int sensorReceivingVolume) {
+        return Math.min(MAX_Mbps, sensorReceivingVolume);
+    }
+
     @Override
     public boolean isCenter() {
         return true;

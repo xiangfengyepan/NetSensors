@@ -1,5 +1,7 @@
 package IA.State;
 
+import java.util.Arrays;
+
 public final class State {
     private DataCenters dataCenters;
     private Sensors sensors;
@@ -59,16 +61,30 @@ public final class State {
         Node src = sensors.get(sensorIndex);
 
         // Check dst connection limit
-        // TODO
+        // TODO check if ok
+        int grade = (int) Arrays.stream(sensorConnectedTo).filter(dstAux -> dstAux == dst).count();
+
+        if (dst.isCenter() && grade > Center.MAX_CONNECTIONS)
+            return false;
+        else if (!dst.isCenter() && grade > Sensor.MAX_CONNECTIONS)
+            return false;
 
         // Check if it creates a cycle.
         // We iterate from dst until we reach an end, or src.
-        // TODO
+        // TODO check if ok
+        Node act = dst;
+        while (act != null && !act.isCenter() && act != src)
+            act = sensorConnectedTo[sensorIndex];
+        return act.isCenter() || act == null;
 
-        return true;
+        // return true;
     }
 
     private void connectSensor(int sensorIndex, Node dst) {
+        // TODO check if ok
+        if (dst == null)
+            return;
+
         Node src = sensors.get(sensorIndex);
 
         // Update distance cost
@@ -78,20 +94,53 @@ public final class State {
             totalCost += src.sqDistance(dst);
 
         // Update volume cost
-        // TODO
+        // TODO (maybe nothing todo)
 
         // Update connection state
         sensorConnectedTo[sensorIndex] = dst;
 
         // Update receiving volume state
-        // TODO
+        // TODO check if ok
+        if (dst.isCenter())
+            return;
+
+        // iterate from the next sensor until find an end
+        Node act = src;
+        Node next = sensorConnectedTo[sensorIndex];
+        while (next != null && !next.isCenter()) {
+            int actSensorIndex = sensors.indexOf(act);
+            int volume = sensorReceivingVolume[actSensorIndex] + ((Sensor) act).getCapacity();
+            sensorReceivingVolume[sensors.indexOf(next)] += ((Sensor) next).getRealReciveVolumne(volume);
+
+            act = next;
+            next = sensorConnectedTo[actSensorIndex];
+        }
     }
 
     private int getTotalVolume() {
         int totalVolume = 0;
 
         // Iterate edges that `dst.isCenter()`, and compute sensorSendingVolume
-        // TODO
+        // TODO check if ok
+        for (int i = 0; i < sensorConnectedTo.length; i++) {
+            Node dst = sensorConnectedTo[i];
+            if (dst.isCenter()) {
+                Sensor src = (Sensor) sensors.get(i);
+                int volume = sensorReceivingVolume[i] + src.getCapacity();
+                if (dst.isCenter())
+                    totalVolume += ((Center) dst).getRealReciveVolumne(volume);
+                else
+                    totalVolume += ((Sensor) dst).getRealReciveVolumne(volume);
+
+                // debug purpose
+                int leak = (dst instanceof Center) ? (volume - Center.MAX_Mbps)
+                        : (volume - ((Sensor) dst).getMaxTransmition());
+                if (leak > 0) {
+                    System.out.println("There is a leak in " + dst + " of " + leak + " Mbits");
+                }
+
+            }
+        }
 
         return totalVolume;
     }
@@ -110,14 +159,13 @@ public final class State {
         }
 
         for (int sensorIndex = 0; sensorIndex < sensors.size(); ++sensorIndex) {
-            // TODO edge index shoud distinguish between sensors and centers
             Node src = sensors.get(sensorIndex);
             Node dst = sensorConnectedTo[sensorIndex];
             if (dst == null)
                 continue;
 
             System.out.print("Edge: distance: " + String.format("%.2f", src.distance(dst)));
-            System.out.print(" volume: " + sensorReceivingVolume[sensorIndex]);
+            System.out.print(" reception: " + sensorReceivingVolume[sensorIndex]);
             System.out.println(" " + src + " -> " + dst);
         }
 
