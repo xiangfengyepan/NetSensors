@@ -9,18 +9,25 @@ public final class Sensor extends Node {
         this.capacity = capacity;
     };
 
+    @Override
     public int getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
+    public void setCapacity(int capacitya) {
+        this.capacity = capacitya;
     }
 
     // TODO check if ok
-    public int getRealReciveVolumne(int sensorReceivingVolume)
+    public int getRealSendingVolumne(Node dst, int sensorReceivingVolume)
     {
-        return Math.min(this.capacity * 3, sensorReceivingVolume);
+        int realSendingVolumne = Math.min(this.capacity * 3, sensorReceivingVolume + this.capacity);
+        int maxReciveVolumne = dst.getCapacity() * 2;
+        if (dst.isCenter())
+            maxReciveVolumne = ((Center) dst).getRealReciveVolumne(sensorReceivingVolume);
+
+        System.out.println(sensorReceivingVolume);
+        return Math.min(realSendingVolumne, maxReciveVolumne);
     }
 
     // TODO check if ok

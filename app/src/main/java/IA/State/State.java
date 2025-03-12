@@ -109,8 +109,8 @@ public final class State {
         Node next = sensorConnectedTo[sensorIndex];
         while (next != null && !next.isCenter()) {
             int actSensorIndex = sensors.indexOf(act);
-            int volume = sensorReceivingVolume[actSensorIndex] + ((Sensor) act).getCapacity();
-            sensorReceivingVolume[sensors.indexOf(next)] += ((Sensor) next).getRealReciveVolumne(volume);
+            int recivedVolume = sensorReceivingVolume[actSensorIndex];
+            sensorReceivingVolume[sensors.indexOf(next)] += ((Sensor) act).getRealSendingVolumne(next, recivedVolume);
 
             act = next;
             next = sensorConnectedTo[actSensorIndex];
@@ -126,15 +126,11 @@ public final class State {
             Node dst = sensorConnectedTo[i];
             if (dst.isCenter()) {
                 Sensor src = (Sensor) sensors.get(i);
-                int volume = sensorReceivingVolume[i] + src.getCapacity();
-                if (dst.isCenter())
-                    totalVolume += ((Center) dst).getRealReciveVolumne(volume);
-                else
-                    totalVolume += ((Sensor) dst).getRealReciveVolumne(volume);
-
+                int recivedVolume = sensorReceivingVolume[i];
+                totalVolume += src.getRealSendingVolumne(dst, recivedVolume);
                 // debug purpose
-                int leak = (dst instanceof Center) ? (volume - Center.MAX_Mbps)
-                        : (volume - ((Sensor) dst).getMaxTransmition());
+                int leak = (dst instanceof Center) ? (recivedVolume - Center.MAX_Mbps)
+                        : (recivedVolume - ((Sensor) dst).getMaxTransmition());
                 if (leak > 0) {
                     System.out.println("There is a leak in " + dst + " of " + leak + " Mbits");
                 }

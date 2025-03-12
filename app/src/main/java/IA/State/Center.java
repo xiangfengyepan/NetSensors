@@ -14,6 +14,11 @@ public final class Center extends Node {
     }
 
     @Override
+    public int getCapacity() {
+        return MAX_Mbps;
+    }
+
+    @Override
     public boolean isCenter() {
         return true;
     }
