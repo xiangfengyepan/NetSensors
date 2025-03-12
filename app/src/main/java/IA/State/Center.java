@@ -9,7 +9,7 @@ public final class Center extends Node {
     }
 
     // TODO check if ok
-    public int getRealReciveVolumne(int sensorReceivingVolume) {
+    public int getRealRecivedVolumne(int sensorReceivingVolume) {
         return Math.min(MAX_Mbps, sensorReceivingVolume);
     }
 
@@ -25,6 +25,6 @@ public final class Center extends Node {
 
     @Override
     public String toString() {
-        return "center(x=" + getCx() + ", y=" + getCy() + ")";
+        return String.format("center(x=%02d, y=%02d)", getCx(), getCy());
     }
 }

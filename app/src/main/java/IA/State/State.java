@@ -81,17 +81,15 @@ public final class State {
     }
 
     private void connectSensor(int sensorIndex, Node dst) {
-        // TODO check if ok
-        if (dst == null)
-            return;
-
         Node src = sensors.get(sensorIndex);
 
         // Update distance cost
+        // TODO check if ok
+        int volume = sensorReceivingVolume[sensors.indexOf(src)] + src.getCapacity();
         if (sensorConnectedTo[sensorIndex] != null)
-            totalCost -= src.sqDistance(sensorConnectedTo[sensorIndex]);
+            totalCost -= src.sqDistance(sensorConnectedTo[sensorIndex]) * volume;
         if (dst != null)
-            totalCost += src.sqDistance(dst);
+            totalCost += src.sqDistance(dst) * volume;
 
         // Update volume cost
         // TODO (maybe nothing todo)
@@ -101,8 +99,6 @@ public final class State {
 
         // Update receiving volume state
         // TODO check if ok
-        if (dst.isCenter())
-            return;
 
         // iterate from the next sensor until find an end
         Node act = src;
@@ -142,17 +138,10 @@ public final class State {
     }
 
     public void print() {
-        int index = 0;
-        for (Sensor sensor : sensors) {
-            System.out.println("Sensor: " + index + " Cap=" + sensor.getCapacity() + " X=" + sensor.getCx() + " Y="
-                    + sensor.getCy());
-            ++index;
-        }
-        index = 0;
-        for (Center center : dataCenters) {
-            System.out.println("Center: " + index + " X=" + center.getCx() + " Y=" + center.getCy());
-            ++index;
-        }
+        for (Sensor sensor : sensors)
+            System.out.println(sensor);
+        for (Center center : dataCenters)
+            System.out.println(center);
 
         for (int sensorIndex = 0; sensorIndex < sensors.size(); ++sensorIndex) {
             Node src = sensors.get(sensorIndex);
@@ -161,7 +150,19 @@ public final class State {
                 continue;
 
             System.out.print("Edge: distance: " + String.format("%.2f", src.distance(dst)));
-            System.out.print(" reception: " + sensorReceivingVolume[sensorIndex]);
+            if (dst.isCenter())
+            {
+                System.out.print(" centerReception: " + sensorReceivingVolume[sensorIndex] + src.getCapacity());
+                System.out.print(" cost: " + src.sqDistance(dst) * (sensorReceivingVolume[sensorIndex] + src.getCapacity()));
+            }
+            else 
+            {
+                System.out.print(" dstReception: " + sensorReceivingVolume[sensorIndex + 1]);
+                System.out.print(" cost: " + src.sqDistance(dst) * sensorReceivingVolume[sensorIndex + 1]);
+                System.out.print(src.sqDistance(dst));
+            }
+
+            System.out.print("\t");
             System.out.println(" " + src + " -> " + dst);
         }
 

@@ -24,10 +24,9 @@ public final class Sensor extends Node {
         int realSendingVolumne = Math.min(this.capacity * 3, sensorReceivingVolume + this.capacity);
         int maxReciveVolumne = dst.getCapacity() * 2;
         if (dst.isCenter())
-            maxReciveVolumne = ((Center) dst).getRealReciveVolumne(sensorReceivingVolume);
+            maxReciveVolumne = ((Center) dst).getRealRecivedVolumne(realSendingVolumne);
 
-        System.out.println(sensorReceivingVolume);
-        return Math.min(realSendingVolumne, maxReciveVolumne);
+        return maxReciveVolumne;
     }
 
     // TODO check if ok
@@ -43,6 +42,6 @@ public final class Sensor extends Node {
 
     @Override
     public String toString() {
-        return "sensor(x=" + getCx() + ", y=" + getCy() + ", capacity=" + capacity + ")";
-    }
+        return String.format("sensor(x=%02d, y=%02d, capacity=%02d)", getCx(), getCy(), capacity);
+    }    
 }
