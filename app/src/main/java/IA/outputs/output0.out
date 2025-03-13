@@ -1,0 +1,45 @@
+Reusing configuration cache.
+> Task :app:processResources NO-SOURCE
+> Task :app:compileJava
+> Task :app:classes
+
+> Task :app:run
+Directorio actual: /mnt/c/Users/XF/Documents/UPC/3 Grau/Quatrimestre 2/IA/NetSensors/app
+1690
+130
+31705
+8168
+2320
+8852
+160
+43825
+3880
+1105
+sensor(x=88, y=47, capacity=01)
+sensor(x=54, y=04, capacity=01)
+sensor(x=06, y=78, capacity=05)
+sensor(x=69, y=73, capacity=02)
+sensor(x=63, y=62, capacity=02)
+sensor(x=92, y=62, capacity=02)
+sensor(x=89, y=76, capacity=01)
+sensor(x=10, y=99, capacity=05)
+sensor(x=59, y=98, capacity=05)
+sensor(x=37, y=02, capacity=05)
+center(x=85, y=88)
+center(x=47, y=13)
+Edge: distance: 41.11 centerReception: 1 cost: 1690		 sensor(x=88, y=47, capacity=01) -> center(x=85, y=88)
+Edge: distance: 11.40 centerReception: 1 cost: 130		 sensor(x=54, y=04, capacity=01) -> center(x=47, y=13)
+Edge: distance: 79.63 centerReception: 5 cost: 31705		 sensor(x=06, y=78, capacity=05) -> center(x=85, y=88)
+Edge: distance: 63.91 centerReception: 2 cost: 8168		 sensor(x=69, y=73, capacity=02) -> center(x=47, y=13)
+Edge: distance: 34.06 centerReception: 2 cost: 2320		 sensor(x=63, y=62, capacity=02) -> center(x=85, y=88)
+Edge: distance: 66.53 centerReception: 2 cost: 8852		 sensor(x=92, y=62, capacity=02) -> center(x=47, y=13)
+Edge: distance: 12.65 centerReception: 1 cost: 160		 sensor(x=89, y=76, capacity=01) -> center(x=85, y=88)
+Edge: distance: 93.62 centerReception: 5 cost: 43825		 sensor(x=10, y=99, capacity=05) -> center(x=47, y=13)
+Edge: distance: 27.86 centerReception: 5 cost: 3880		 sensor(x=59, y=98, capacity=05) -> center(x=85, y=88)
+Edge: distance: 14.87 centerReception: 5 cost: 1105		 sensor(x=37, y=02, capacity=05) -> center(x=47, y=13)
+Cost: 101835.0
+Volumne: 29 Mbits
+
+BUILD SUCCESSFUL in 2s
+2 actionable tasks: 2 executed
+Configuration cache entry reused.

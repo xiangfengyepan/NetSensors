@@ -26,7 +26,7 @@ public final class Sensor extends Node {
         if (dst.isCenter())
             maxReciveVolumne = ((Center) dst).getRealRecivedVolumne(realSendingVolumne);
 
-        return maxReciveVolumne;
+        return Math.min(realSendingVolumne, maxReciveVolumne);
     }
 
     // TODO check if ok

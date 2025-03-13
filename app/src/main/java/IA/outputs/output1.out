@@ -1,0 +1,55 @@
+Reusing configuration cache.
+> Task :app:processResources NO-SOURCE
+> Task :app:compileJava
+> Task :app:classes
+
+> Task :app:run
+Directorio actual: /mnt/c/Users/XF/Documents/UPC/3 Grau/Quatrimestre 2/IA/NetSensors/app
+false
+3005.0
+false
+18565.0
+false
+46523.0
+false
+47465.0
+false
+52511.0
+false
+53741.0
+false
+74051.0
+false
+93267.0
+false
+219367.0
+false
+364867.0
+sensor(x=88, y=47, capacity=01)
+sensor(x=54, y=04, capacity=01)
+sensor(x=06, y=78, capacity=05)
+sensor(x=69, y=73, capacity=02)
+sensor(x=63, y=62, capacity=02)
+sensor(x=92, y=62, capacity=02)
+sensor(x=89, y=76, capacity=01)
+sensor(x=10, y=99, capacity=05)
+sensor(x=59, y=98, capacity=05)
+sensor(x=37, y=02, capacity=05)
+center(x=85, y=88)
+center(x=47, y=13)
+Edge: distance: 54.82 dstReception: 1 cost: 3005		 sensor(x=88, y=47, capacity=01) -> sensor(x=54, y=04, capacity=01)
+Edge: distance: 88.20 dstReception: 2 cost: 15560		 sensor(x=54, y=04, capacity=01) -> sensor(x=06, y=78, capacity=05)
+Edge: distance: 63.20 dstReception: 4 cost: 15976		 sensor(x=06, y=78, capacity=05) -> sensor(x=69, y=73, capacity=02)
+Edge: distance: 12.53 dstReception: 4 cost: 628		 sensor(x=69, y=73, capacity=02) -> sensor(x=63, y=62, capacity=02)
+Edge: distance: 29.00 dstReception: 4 cost: 3364		 sensor(x=63, y=62, capacity=02) -> sensor(x=92, y=62, capacity=02)
+Edge: distance: 14.32 dstReception: 2 cost: 410		 sensor(x=92, y=62, capacity=02) -> sensor(x=89, y=76, capacity=01)
+Edge: distance: 82.28 dstReception: 3 cost: 20310		 sensor(x=89, y=76, capacity=01) -> sensor(x=10, y=99, capacity=05)
+Edge: distance: 49.01 dstReception: 8 cost: 19216		 sensor(x=10, y=99, capacity=05) -> sensor(x=59, y=98, capacity=05)
+Edge: distance: 98.49 dstReception: 10 cost: 97000		 sensor(x=59, y=98, capacity=05) -> sensor(x=37, y=02, capacity=05)
+Edge: distance: 98.49 centerReception: 15 cost: 145500		 sensor(x=37, y=02, capacity=05) -> center(x=85, y=88)
+Cost: 364867.0
+Volumne: 15 Mbits
+
+BUILD SUCCESSFUL in 3s
+2 actionable tasks: 2 executed
+Configuration cache entry reused.

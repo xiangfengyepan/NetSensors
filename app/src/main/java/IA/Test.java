@@ -8,14 +8,19 @@ public class Test {
     private int nsens;
 
     public Test() {
-        this.seed = 1;
         this.ncenters = 2;
         this.nsens = 10;
+        this.seed = 1;
     }
 
-    public void run() {
+    public void run(String filePath) {
         State board = new State(ncenters, nsens, seed);
-        board.iniSolution();
+   
+        if (filePath.isBlank())
+            board.iniSolution();
+        else 
+            board.readIniSolution(filePath);
+
         board.print();
     }
 }

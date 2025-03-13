@@ -4,10 +4,16 @@
 package main;
 
 import IA.Test;
-
 public class App {
+    
+    private static final String FILE_DIR_PATH = "./src/main/java/IA/inputs/";
     public static void main(String[] args) {
+
         Test test = new Test();
-        test.run();
+        
+        //test.run("");
+        int index = 0; // Starting from 0
+        test.run(FILE_DIR_PATH + "input" + index + ".ini");
     }
+    
 }
