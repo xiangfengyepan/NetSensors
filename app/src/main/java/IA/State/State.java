@@ -169,4 +169,39 @@ public final class State {
         System.out.println("Cost: " + totalCost);
         System.out.println("Volumne: " + getTotalVolume() + " Mbits");
     }
+
+    // Others Methods
+    // FinalState
+    public boolean isGoalState() {
+		return false;
+	}
+
+    // Getters
+    public DataCenters getDataCenters() {
+        return dataCenters;
+    }
+
+    public Node[] getSensorConnectedTo() {
+        return sensorConnectedTo;
+    }
+
+    public int[] getSensorReceivingVolume() {
+        return sensorReceivingVolume;
+    }   
+
+    public Sensors getSensors() {
+        return sensors;
+    }
+
+    public float getTotalCost() {
+        return totalCost;
+    }
+
+    // OPERADORS TODO
+    public void addEdge(Node src, Node dst) {
+        // TODO
+    }
+
+    // Heuristic TODO
+
 }
