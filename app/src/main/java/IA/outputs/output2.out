@@ -30,6 +30,6 @@ Edge: distance: 98.49 transmition: 15 cost: 145500		 sensor(x=37, y=02, capacity
 Cost: 243337.0
 Volumne: 15 Mbits
 
-BUILD SUCCESSFUL in 1s
+BUILD SUCCESSFUL in 932ms
 2 actionable tasks: 1 executed, 1 up-to-date
 Configuration cache entry reused.

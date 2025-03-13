@@ -119,9 +119,8 @@ public final class State {
 
     private void connectSensor(int sensorIndex, Node dst) {
         Node src = sensors.get(sensorIndex);
-
         // Update distance cost
-        // TODO check if ok
+        // TODO check if ok (its wrong, it complicate to do incremental)
         int volume = ((Sensor) src).getRealSendingVolumne(dst, sensorReceivingVolume[sensorIndex]);
         if (sensorConnectedTo[sensorIndex] != null) {
             // TODO update sensorReceivingVolume
@@ -129,7 +128,6 @@ public final class State {
         }
         if (dst != null)
             totalCost += src.sqDistance(dst) * volume;
-        System.out.println(src.sqDistance(dst) * volume);
 
         // Update volume cost
         // TODO (maybe nothing todo)
@@ -146,6 +144,7 @@ public final class State {
         while (next != null && !next.isCenter()) {
             int recivedVolume = sensorReceivingVolume[sensors.indexOf(act)];
             sensorReceivingVolume[sensors.indexOf(next)] += ((Sensor) act).getRealSendingVolumne(next, recivedVolume);
+
             act = next;
             next = sensorConnectedTo[sensors.indexOf(act)];
         }
@@ -182,22 +181,18 @@ public final class State {
             System.out.println(center);
 
         for (int sensorIndex = 0; sensorIndex < sensors.size(); ++sensorIndex) {
-            Node src = sensors.get(sensorIndex);
+            Sensor src = sensors.get(sensorIndex);
             Node dst = sensorConnectedTo[sensorIndex];
             if (dst == null)
                 continue;
 
             System.out.print("Edge: distance: " + String.format("%.2f", src.distance(dst)));
-            if (dst.isCenter()) {
-                System.out.print(" centerReception: " + (sensorReceivingVolume[sensorIndex] + src.getCapacity()));
-                System.out.print(
-                        " cost: " + src.sqDistance(dst) * (sensorReceivingVolume[sensorIndex] + src.getCapacity()));
-            } else {
-                System.out.print(
-                        " dstReception: " + sensorReceivingVolume[sensors.indexOf(sensorConnectedTo[sensorIndex])]);
-                System.out.print(" cost: "
-                        + src.sqDistance(dst) * sensorReceivingVolume[sensors.indexOf(sensorConnectedTo[sensorIndex])]);
-            }
+            int recivedVolume = sensorReceivingVolume[sensorIndex];
+            int volume = src.getRealSendingVolumne(dst, recivedVolume);
+      
+            System.out.print(" transmition: " + volume);
+            System.out.print(" cost: "+ src.sqDistance(dst) * volume);
+            
 
             System.out.print("\t\t");
             System.out.println(" " + src + " -> " + dst);
