@@ -48,7 +48,6 @@ public final class State {
             this.totalCost = 0.f;
 
             for (int srcIndex = 0; srcIndex < sensors.size(); srcIndex++) {
-                System.out.println(srcIndex);
                 line = br.readLine().trim();
                 if (line.isEmpty() || line.startsWith("#"))
                     continue;
@@ -129,9 +128,16 @@ public final class State {
         // Update distance cost
         // TODO check if ok (its wrong, it complicate to do incremental)
         int volume = ((Sensor) src).getRealSendingVolumne(dst, sensorReceivingVolume[sensorIndex]);
+    
         if (sensorConnectedTo[sensorIndex] != null) {
-            // TODO update sensorReceivingVolume
-            totalCost -= src.sqDistance(sensorConnectedTo[sensorIndex]) * volume;
+            // TODO check if ok update sensorReceivingVolume
+            Node antDst = sensorConnectedTo[sensorIndex];
+            if (!sensorConnectedTo[sensorIndex].isCenter())
+            {
+                int antVolume = ((Sensor) src).getRealSendingVolumne(antDst, sensorReceivingVolume[sensorIndex]);
+                sensorReceivingVolume[sensors.indexOf(antDst)] -= antVolume;
+            }
+            totalCost -= src.sqDistance(antDst) * volume;
         }
         if (dst != null)
             totalCost += src.sqDistance(dst) * volume;
@@ -150,8 +156,9 @@ public final class State {
         Node next = sensorConnectedTo[sensorIndex];
         while (next != null && !next.isCenter()) {
             int recivedVolume = sensorReceivingVolume[sensors.indexOf(act)];
-            sensorReceivingVolume[sensors.indexOf(next)] += ((Sensor) act).getRealSendingVolumne(next, recivedVolume);
-
+            int act2NextVolume = ((Sensor) act).getRealSendingVolumne(next, recivedVolume);
+            sensorReceivingVolume[sensors.indexOf(next)] += act2NextVolume;
+            
             act = next;
             next = sensorConnectedTo[sensors.indexOf(act)];
         }
@@ -181,6 +188,23 @@ public final class State {
         return totalVolume;
     }
 
+    private int getTotalCostLineal() {
+        int totalCost = 0;
+
+        // Iterate edges that `dst.isCenter()`, and compute sensorSendingVolume
+        // TODO check if ok
+        for (int i = 0; i < sensorConnectedTo.length; i++) {
+            Node dst = sensorConnectedTo[i];
+            if (dst != null) {
+                Sensor src = (Sensor) sensors.get(i);
+                int volume = src.getRealSendingVolumne(dst, sensorReceivingVolume[sensors.indexOf(src)]);
+                totalCost += src.sqDistance(dst) * volume;
+            }
+        }
+
+        return totalCost;
+    }
+
     public void print() {
         for (Sensor sensor : sensors)
             System.out.println(sensor);
@@ -206,6 +230,8 @@ public final class State {
         }
 
         System.out.println("Cost: " + totalCost);
+        System.out.println("Lineal Cost: " + getTotalCostLineal());
+
         System.out.println("Volumne: " + getTotalVolume() + " Mbits");
     }
 
