@@ -14,21 +14,21 @@ public final class State {
     private float totalCost;
 
     public State(State state) {
-        dataCenters = state.dataCenters;
-        sensors = state.sensors;
+        this.dataCenters = state.dataCenters;
+        this.sensors = state.sensors;
 
-        sensorConnectedTo = state.sensorConnectedTo.clone();
-        sensorReceivingVolume = state.sensorReceivingVolume.clone();
-        totalCost = state.totalCost;
+        this.sensorConnectedTo = state.sensorConnectedTo.clone();
+        this.sensorReceivingVolume = state.sensorReceivingVolume.clone();
+        this.totalCost = state.totalCost;
     }
 
     public State(int ncenters, int nsens, int seed) {
-        dataCenters = new DataCenters(ncenters, seed);
-        sensors = new Sensors(nsens, seed);
-        sensorConnectedTo = new Node[sensors.size()];
-        sensorReceivingVolume = new int[sensors.size()];
+        this.dataCenters = new DataCenters(ncenters, seed);
+        this.sensors = new Sensors(nsens, seed);
+        this.sensorConnectedTo = new Node[sensors.size()];
+        this.sensorReceivingVolume = new int[sensors.size()];
 
-        totalCost = 0.f;
+        this.totalCost = 0.f;
     }
 
     public void readIniSolution(String filePath) {
@@ -40,9 +40,15 @@ public final class State {
             int nsens = Integer.valueOf(line.split(" ")[1]);
             int seed = Integer.valueOf(line.split(" ")[2]);
 
-            new State(ncenters, nsens, seed);
+            // reinicialize the State
+            this.dataCenters = new DataCenters(ncenters, seed);
+            this.sensors = new Sensors(nsens, seed);
+            this.sensorConnectedTo = new Node[sensors.size()];
+            this.sensorReceivingVolume = new int[sensors.size()];
+            this.totalCost = 0.f;
 
             for (int srcIndex = 0; srcIndex < sensors.size(); srcIndex++) {
+                System.out.println(srcIndex);
                 line = br.readLine().trim();
                 if (line.isEmpty() || line.startsWith("#"))
                     continue;
@@ -103,7 +109,7 @@ public final class State {
 
         if (dst.isCenter() && grade > Center.MAX_CONNECTIONS)
             return false;
-        else if (!dst.isCenter() && grade > Sensor.MAX_CONNECTIONS)
+        else if (!dst.isCenter() && grade + 1 > Sensor.MAX_CONNECTIONS)
             return false;
 
         // Check if it creates a cycle.
@@ -111,7 +117,8 @@ public final class State {
         // TODO check if ok
         Node act = dst;
         while (act != null && !act.isCenter() && act != src)
-            act = sensorConnectedTo[sensorIndex];
+            act = sensorConnectedTo[sensors.indexOf(act)];
+        System.out.println(act.isCenter() || act == null);
         return act.isCenter() || act == null;
 
         // return true;

@@ -3,6 +3,11 @@ import re
 import networkx as nx
 import matplotlib.pyplot as plt
 
+CENTER_CAPACITY = 150
+NODE_TEXT_FONT_SIZE = 4
+TOTAL_TEXT_FONT_SIZE = 6
+DPI = 300
+
 # Improved regular expression to detect sensor-to-sensor and sensor-to-center connections
 edge_pattern = re.compile(
     r"Edge: distance: (\d+\.\d+) (?:transmition): (\d+) cost: (\d+)\s+" 
@@ -15,36 +20,56 @@ def build_graph_from_file(file_path):
     G = nx.DiGraph()  # Directed graph
     total_cost = 0
     total_volume = 0
+    sensor_nodes = set()  # Track sensor nodes
+    center_nodes = set()  # Track center nodes
 
     try:
         with open(file_path, "r") as file:
             for line in file:
+                # Detect sensors
+                sensor_match = re.search(r"sensor\(x=(\d+), y=(\d+), capacity=(\d+)\)", line)
+                if sensor_match:
+                    sx, sy, capacity = sensor_match.groups()
+                    sensor_node = f"S({sx},{sy})"
+                    sensor_nodes.add((sensor_node, int(sx), int(sy), int(capacity)))
+
+                # Detect centers
+                center_match = re.search(r"center\(x=(\d+), y=(\d+)\)", line)
+                if center_match:
+                    cx, cy = center_match.groups()
+                    center_node = f"C({cx},{cy})"
+                    center_nodes.add((center_node, int(cx), int(cy)))
+
+                # Detect edges
                 match = edge_pattern.search(line)
                 if match:
                     distance, transmition, cost, sx, sy, capacity, sx2, sy2, cx, cy = match.groups()
-                    
-                    # Identify nodes
-                    sensor_node = f"S({sx},{sy})"
-                    sensor_capacity = int(capacity)  # Get sensor capacity
+
                     if cx and cy:  # Connection to a center
                         target_node = f"C({cx},{cy})"
-                        G.add_node(target_node, pos=(int(cx), int(cy)), type="center")
                     else:  # Connection to another sensor
                         target_node = f"S({sx2},{sy2})"
-                        G.add_node(target_node, pos=(int(sx2), int(sy2)), type="sensor")
 
-                    # Add nodes and edge
-                    G.add_node(sensor_node, pos=(int(sx), int(sy)), type="sensor", capacity=sensor_capacity)
+                    # Add edge
                     G.add_edge(sensor_node, target_node, distance=float(distance), cost=int(cost), transmition=int(transmition))
 
                     # Add costs and volume
                     total_cost += int(cost)
                     total_volume += int(capacity)
 
+        # Add all sensors to the graph
+        for sensor, x, y, capacity in sensor_nodes:
+            G.add_node(sensor, pos=(x, y), type="sensor", capacity=capacity)
+
+        # Add all center nodes to the graph
+        for center, x, y in center_nodes:
+            G.add_node(center, pos=(x, y), type="center", capacity=CENTER_CAPACITY)
+
         return G, total_cost, total_volume
     except FileNotFoundError:
         print(f"Error: The file {file_path} does not exist.")
         return None, 0, 0
+
 
 # Function to draw the graph with differentiated colors
 def draw_graph(G, total_cost, total_volume, output_path):
@@ -53,7 +78,7 @@ def draw_graph(G, total_cost, total_volume, output_path):
         return
     
     num_nodes = len(G.nodes)
-    figsize = (max(10, num_nodes / 10), max(6, num_nodes / 10))
+    figsize = (max(10, num_nodes/2), max(6, num_nodes/2))
     plt.figure(figsize=figsize)
     
     pos = nx.get_node_attributes(G, "pos")  
@@ -63,20 +88,20 @@ def draw_graph(G, total_cost, total_volume, output_path):
     node_colors = ["red" if G.nodes[n]["type"] == "center" else "blue" for n in G.nodes]
 
     # Draw the graph with transparent nodes
-    nx.draw(G, pos, with_labels=True, labels=labels, node_size=1000, node_color=node_colors, font_size=6, font_color="white", edge_color="gray", alpha=0.5)
+    nx.draw(G, pos, with_labels=True, labels=labels, node_size=(1000/6)*NODE_TEXT_FONT_SIZE, node_color=node_colors, font_size=NODE_TEXT_FONT_SIZE, font_color="white", edge_color="gray", alpha=0.5)
 
     # Edge labels (cost + distance + transmission)
     edge_labels = {(u, v): f"C:{d['cost']}, D:{d['distance']:.2f}, T:{d['transmition']}" for u, v, d in G.edges(data=True)}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=6)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=NODE_TEXT_FONT_SIZE)
 
     plt.title("Graph of Sensors and Transmission Centers")
 
     # Display total cost and volume values
-    plt.figtext(0.01, 0.01, f"Total Cost: {total_cost}", fontsize=12, ha="left")
-    plt.figtext(0.01, 0.05, f"Total Volume: {total_volume} Mbits", fontsize=12, ha="left")
+    plt.figtext(0.01, 0.01, f"Total Cost: {total_cost}", fontsize=TOTAL_TEXT_FONT_SIZE, ha="left")
+    plt.figtext(0.01, 0.03, f"Total Volume: {total_volume} Mbits", fontsize=TOTAL_TEXT_FONT_SIZE, ha="left")
 
     # Save image
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=DPI)
     plt.close()
     print(f"Graph saved in '{output_path}'")
 

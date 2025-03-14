@@ -12,7 +12,7 @@ public class App {
         Test test = new Test();
         
         //test.run("");
-        int index = 2; // Starting from 0
+        int index = 0; // Starting from 0
         test.run(FILE_DIR_PATH + "input" + index + ".ini");
     }
     
