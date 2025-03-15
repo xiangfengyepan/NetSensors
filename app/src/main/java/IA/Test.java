@@ -64,18 +64,26 @@ public class Test {
         }
     }
 
-    public void run(String filePath) {
+    public void run(int i) {
         int ncenters = 4;
         int nsens = 100;
         int centerSeed = 1234;
         int sensorSeed = 4321;
         State board = new State(ncenters, nsens, centerSeed, sensorSeed);
 
-        if (filePath.isBlank())
-            board.iniSolution();
-        else
-            board.readIniSolution(filePath);
+        board.generateIniSolution(0);
 
+        board.print();
+    }
+
+    public void run(String filePath) {
+        int ncenters = 4;
+        int nsens = 100;
+        int centerSeed = 1234;
+        int sensorSeed = 4321;
+        State board = new State(ncenters, nsens, centerSeed, sensorSeed);
+        
+        board.generateIniSolution(filePath);
         board.print();
     }
 }

@@ -110,13 +110,13 @@ in_file_path_dir = "./app/src/main/java/IA/outputs/"
 out_file_path_dir = "./app/src/main/java/IA/graphs/"
 
 # Regular expression to capture the output file number outputX.out
-file_pattern = re.compile(r"output(\d+)\.out")
+file_pattern = re.compile(r"output(?:_gen)?(\d+)\.out$")  # Matches 'output' or 'output_gen' before numbers
 
-# Get and sort files by their numeric index
 input_files = sorted(
     (f for f in os.listdir(in_file_path_dir) if file_pattern.match(f)),
     key=lambda x: int(file_pattern.match(x).group(1))  # Extract and sort by numeric index
 )
+
 
 print("Detected files:", input_files)
 
@@ -124,10 +124,18 @@ print("Detected files:", input_files)
 for input_file in input_files:
     match = file_pattern.match(input_file)
     if match:
-        index = match.group(1)
+        number = match.group(1)  # Extract the numeric part
+
+        # Check if the filename contains "_gen" and format index accordingly
+        if "_gen" in input_file:
+            index = f"_gen{number}"
+        else:
+            index = number
+
         file_path = os.path.join(in_file_path_dir, input_file)
         output_path = os.path.join(out_file_path_dir, f"graph{index}.png")
 
         # Build the graph and generate the image
         graph, total_cost, total_volume = build_graph_from_file(file_path)
         draw_graph(graph, total_cost, total_volume, output_path)
+

@@ -11,9 +11,11 @@ public class App {
 
         Test test = new Test();
         
-        //test.run("");
-        int index = 2; // Starting from 0
-        test.run(FILE_DIR_PATH + "input" + index + ".ini");
+        test.run(0);
+
+        int maxFileIndex = 2; // Starting from 0
+        for (int i = 0; i < maxFileIndex; i++)
+            test.run(FILE_DIR_PATH + "input" + i + ".ini");
 
         int iterations = 2;
         System.out.println("Trying HC with " + iterations + " iterations");
