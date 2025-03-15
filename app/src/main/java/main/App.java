@@ -14,6 +14,16 @@ public class App {
         //test.run("");
         int index = 2; // Starting from 0
         test.run(FILE_DIR_PATH + "input" + index + ".ini");
+
+        int iterations = 1;
+        System.out.println("Trying HC with " + iterations + " iterations");
+        while (iterations > 0) {
+            iterations--;
+            System.out.print("iteration " + iterations + ": ");
+  
+            test.provaHC();
+            // provaSA();
+        }
     }
     
 }

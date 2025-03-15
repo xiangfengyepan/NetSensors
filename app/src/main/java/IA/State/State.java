@@ -31,6 +31,15 @@ public final class State {
         this.totalCost = 0.f;
     }
 
+    public void generateState(int ncenters, int nsens, int seed) {
+        this.dataCenters = new DataCenters(ncenters, seed);
+        this.sensors = new Sensors(nsens, seed);
+        this.sensorConnectedTo = new Node[sensors.size()];
+        this.sensorReceivingVolume = new int[sensors.size()];
+
+        this.totalCost = 0.f;
+    }
+
     public void readIniSolution(String filePath) {
         System.out.println("Directorio actual: " + System.getProperty("user.dir"));
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -41,11 +50,7 @@ public final class State {
             int seed = Integer.valueOf(line.split(" ")[2]);
 
             // reinicialize the State
-            this.dataCenters = new DataCenters(ncenters, seed);
-            this.sensors = new Sensors(nsens, seed);
-            this.sensorConnectedTo = new Node[sensors.size()];
-            this.sensorReceivingVolume = new int[sensors.size()];
-            this.totalCost = 0.f;
+            generateState(ncenters, nsens, seed);
 
             for (int srcIndex = 0; srcIndex < sensors.size(); srcIndex++) {
                 line = br.readLine().trim();
@@ -93,6 +98,12 @@ public final class State {
         }
     }
 
+    public void generateIniSolution(int i) {
+        if (i == 0)
+            iniSolution();
+        // TODO
+    }
+
     private boolean canConnectSensor(int sensorIndex, Node dst) {
         if (dst == null)
             return true;
@@ -123,17 +134,16 @@ public final class State {
         // return true;
     }
 
-    private void connectSensor(int sensorIndex, Node dst) {
+    public void connectSensor(int sensorIndex, Node dst) {
         Node src = sensors.get(sensorIndex);
         // Update distance cost
         // TODO check if ok (its wrong, it complicate to do incremental)
         int volume = ((Sensor) src).getRealSendingVolumne(dst, sensorReceivingVolume[sensorIndex]);
-    
+
         if (sensorConnectedTo[sensorIndex] != null) {
             // TODO check if ok update sensorReceivingVolume
             Node antDst = sensorConnectedTo[sensorIndex];
-            if (!sensorConnectedTo[sensorIndex].isCenter())
-            {
+            if (!sensorConnectedTo[sensorIndex].isCenter()) {
                 int antVolume = ((Sensor) src).getRealSendingVolumne(antDst, sensorReceivingVolume[sensorIndex]);
                 sensorReceivingVolume[sensors.indexOf(antDst)] -= antVolume;
             }
@@ -158,7 +168,7 @@ public final class State {
             int recivedVolume = sensorReceivingVolume[sensors.indexOf(act)];
             int act2NextVolume = ((Sensor) act).getRealSendingVolumne(next, recivedVolume);
             sensorReceivingVolume[sensors.indexOf(next)] += act2NextVolume;
-            
+
             act = next;
             next = sensorConnectedTo[sensors.indexOf(act)];
         }
@@ -220,10 +230,9 @@ public final class State {
             System.out.print("Edge: distance: " + String.format("%.2f", src.distance(dst)));
             int recivedVolume = sensorReceivingVolume[sensorIndex];
             int volume = src.getRealSendingVolumne(dst, recivedVolume);
-      
+
             System.out.print(" transmition: " + volume);
-            System.out.print(" cost: "+ src.sqDistance(dst) * volume);
-            
+            System.out.print(" cost: " + src.sqDistance(dst) * volume);
 
             System.out.print("\t\t");
             System.out.println(" " + src + " -> " + dst);
