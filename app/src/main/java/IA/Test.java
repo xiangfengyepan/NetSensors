@@ -10,7 +10,7 @@ import aima.search.framework.HeuristicFunction;
 import aima.search.framework.SuccessorFunction;
 
 public class Test {
-    private State state;
+    private State board;
     private Random myRandom;
 
     public void provaSA() {
@@ -32,13 +32,15 @@ public class Test {
         myRandom = new Random();
 
         // Change to try other ini solutions
-        int ncenters = 2;
-        int nsens = 10;
-        int seed = 1;
-        state = new State(ncenters, nsens, seed);
+        int ncenters = 4;
+        int nsens = 100;
+        int centerSeed = 1234;
+        int sensorSeed = 4321;
+
+        board = new State(ncenters, nsens, centerSeed, sensorSeed);
 
         info_einicial = 0; // Change to try other ini solutions
-        state.generateIniSolution(0);
+        board.generateIniSolution(0);
 
 
         boolean[] ops = { true, false, false }; // TODO this need to be random to try many operatods
@@ -54,7 +56,7 @@ public class Test {
         //         + info_operadors + " ei: " + (info_einicial + 1));
 
         try {
-            search = new SolutionSearch(state, operators, heuristic);
+            search = new SolutionSearch(board, operators, heuristic);
             search.executeSearch();
             // search.fitxerResultats(); // TODO implement fitxerResultats if we want to ouput in a file
         } catch (Exception e) {
@@ -63,10 +65,11 @@ public class Test {
     }
 
     public void run(String filePath) {
-        int ncenters = 2;
-        int nsens = 10;
-        int seed = 1;
-        State board = new State(ncenters, nsens, seed);
+        int ncenters = 4;
+        int nsens = 100;
+        int centerSeed = 1234;
+        int sensorSeed = 4321;
+        State board = new State(ncenters, nsens, centerSeed, sensorSeed);
 
         if (filePath.isBlank())
             board.iniSolution();

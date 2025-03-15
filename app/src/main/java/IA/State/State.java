@@ -22,18 +22,18 @@ public final class State {
         this.totalCost = state.totalCost;
     }
 
-    public State(int ncenters, int nsens, int seed) {
-        this.dataCenters = new DataCenters(ncenters, seed);
-        this.sensors = new Sensors(nsens, seed);
+    public State(int ncenters, int nsens, int centerSeed, int sensorSeed) {
+        this.dataCenters = new DataCenters(ncenters, centerSeed);
+        this.sensors = new Sensors(nsens, sensorSeed);
         this.sensorConnectedTo = new Node[sensors.size()];
         this.sensorReceivingVolume = new int[sensors.size()];
 
         this.totalCost = 0.f;
     }
 
-    public void generateState(int ncenters, int nsens, int seed) {
-        this.dataCenters = new DataCenters(ncenters, seed);
-        this.sensors = new Sensors(nsens, seed);
+    public void generateState(int ncenters, int nsens, int centerSeed, int sensorSeed) {
+        this.dataCenters = new DataCenters(ncenters, centerSeed);
+        this.sensors = new Sensors(nsens, sensorSeed);
         this.sensorConnectedTo = new Node[sensors.size()];
         this.sensorReceivingVolume = new int[sensors.size()];
 
@@ -47,10 +47,11 @@ public final class State {
             line = br.readLine().trim();
             int ncenters = Integer.valueOf(line.split(" ")[0]);
             int nsens = Integer.valueOf(line.split(" ")[1]);
-            int seed = Integer.valueOf(line.split(" ")[2]);
+            int centerSeed = Integer.valueOf(line.split(" ")[2]);
+            int sensorSeed = Integer.valueOf(line.split(" ")[3]);
 
             // reinicialize the State
-            generateState(ncenters, nsens, seed);
+            generateState(ncenters, nsens, centerSeed, sensorSeed);
 
             for (int srcIndex = 0; srcIndex < sensors.size(); srcIndex++) {
                 line = br.readLine().trim();
