@@ -106,8 +106,8 @@ def draw_graph(G, total_cost, total_volume, output_path):
     print(f"Graph saved in '{output_path}'")
 
 # Input and output directories
-in_file_path_dir = "./app/src/main/java/IA/outputs/"
-out_file_path_dir = "./app/src/main/java/IA/graphs/"
+in_file_path_dir = "./app/src/main/outputs/"
+out_file_path_dir = "./app/src/main/graphs/"
 
 # Regular expression to capture the output file number outputX.out
 file_pattern = re.compile(r"output(?:_gen)?(\d+)\.out$")  # Matches 'output' or 'output_gen' before numbers
