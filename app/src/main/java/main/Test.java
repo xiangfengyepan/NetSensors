@@ -1,0 +1,78 @@
+package main;
+
+import IA.HeuristicCost;
+import IA.InitialState;
+import IA.SolutionSearch;
+import IA.StateParser;
+import IA.WeightedSuccessors;
+import IA.State.State;
+import aima.search.framework.HeuristicFunction;
+import aima.search.framework.SuccessorFunction;
+
+public class Test {
+    public static void provaSA() {
+        // TODO
+    }
+
+    public static void provaHC() {
+        int nCenters = 4;
+        int nSens = 100;
+        int centerSeed = 1234;
+        int sensorSeed = 4321;
+
+        State state = new State(nCenters, nSens, centerSeed, sensorSeed);
+        int bestSolutionCost = Integer.MAX_VALUE;
+
+        while (true) {
+            InitialState.inilializeConnections(state);
+
+            // Try out different SuccessorFunctions
+            // SuccessorFunction operators = new AllSuccessors();
+            SuccessorFunction operators = new WeightedSuccessors();
+
+            // TODO: implement some other heuristics
+            HeuristicFunction heuristic = new HeuristicCost();
+
+            try {
+                SolutionSearch search = new SolutionSearch(state, operators, heuristic);
+                search.executeSearch();
+
+                // Print final state
+                State finalState = search.getEstatFinal();
+                if (finalState.totalCost() < bestSolutionCost) {
+                    bestSolutionCost = finalState.totalCost();
+                    search.getEstatFinal().print();
+                }
+
+            } catch (Exception e) {
+                System.err.println("Nothing happends: " + e.toString());
+            }
+        }
+    }
+
+    public static void printInitialConnection() {
+        int ncenters = 4;
+        int nsens = 100;
+        int centerSeed = 1234;
+        int sensorSeed = 4321;
+
+        State state = new State(ncenters, nsens, centerSeed, sensorSeed);
+        InitialState.inilializeConnections(state);
+
+        state.print();
+    }
+
+    public static void printStateFromFiles() {
+        int filesCount = 3;
+        for (int i = 0; i < filesCount; i++) {
+            printStateFromFile(i);
+        }
+    }
+
+    public static void printStateFromFile(int i) {
+        final String FILE_DIR_PATH = "./src/main/inputs/";
+        String filePath = FILE_DIR_PATH + "input" + i + ".ini";
+        State state = StateParser.fromFile(filePath);
+        state.print();
+    }
+}

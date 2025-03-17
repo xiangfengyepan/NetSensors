@@ -8,7 +8,7 @@ import aima.basic.Agent;
 import aima.basic.Percept;
 
 public class SearchAgent extends Agent {
-	List actionList;
+	List<String> actionList;
 
 	private Iterator actionIterator;
 
@@ -29,7 +29,7 @@ public class SearchAgent extends Agent {
 		}
 	}
 
-	public List getActions() {
+	public List<String> getActions() {
 		return actionList;
 	}
 

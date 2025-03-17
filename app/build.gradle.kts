@@ -40,3 +40,7 @@ application {
     // Define the main class for the application.
     mainClass = "main.App"
 }
+
+tasks.withType<JavaExec> {
+    enableAssertions = true
+}

@@ -1,4 +1,4 @@
-package IA.State;
+package IA;
 
 import aima.search.framework.*;
 import aima.search.informed.SimulatedAnnealingSearch;
@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+
+import IA.State.State;
 
 public class SolutionSearch {
 
@@ -69,7 +71,6 @@ public class SolutionSearch {
     public State getEstatFinal() {
         return (State) search.getGoalState();
     }
-
 
     // THIS METHODS are extra inspect de search actions and properties
     private void setInstrumentation(Properties properties) {

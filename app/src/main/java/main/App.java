@@ -3,29 +3,15 @@
  */
 package main;
 
-import IA.Test;
 public class App {
-    
-    private static final String FILE_DIR_PATH = "./src/main/java/IA/inputs/";
+
     public static void main(String[] args) {
 
-        Test test = new Test();
-        
-        test.run(0);
+        // Test.printInitialConnection();
+        // Test.printStateFromFiles();
+        Test.printStateFromFile(1);
 
-        int maxFileIndex = 2; // Starting from 0
-        for (int i = 0; i < maxFileIndex; i++)
-            test.run(FILE_DIR_PATH + "input" + i + ".ini");
-
-        int iterations = 2;
-        System.out.println("Trying HC with " + iterations + " iterations");
-        while (iterations > 0) {
-            iterations--;
-            System.out.print("iteration " + iterations + ": ");
-  
-            test.provaHC();
-            // provaSA();
-        }
+        // Test.provaHC();
     }
-    
+
 }

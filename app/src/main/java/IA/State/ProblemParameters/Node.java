@@ -1,10 +1,9 @@
-package IA.State;
+package IA.State.ProblemParameters;
 
 public abstract class Node {
+    private final int cx;
+    private final int cy;
     private final int maxConnections;
-
-    private int cx;
-    private int cy;
 
     public Node(int cx, int cy, int maxConnections) {
         this.cx = cx;
@@ -20,20 +19,10 @@ public abstract class Node {
         return cy;
     }
 
-    public void setCx(int cx) {
-        this.cx = cx;
-    }
-
-    public void setCy(int cy) {
-        this.cy = cy;
-    }
-
-    abstract public boolean isCenter();
-
     /**
      * @return Squared distance to the other node
      */
-    public int sqDistance(Node node) {
+    public int sqDistanceTo(Node node) {
         int dx = cx - node.cx;
         int dy = cy - node.cy;
         return dx * dx + dy * dy;
@@ -42,13 +31,11 @@ public abstract class Node {
     /**
      * @return Squared distance to the other node
      */
-    public double distance(Node node) {
-        return Math.sqrt(sqDistance(node));
+    public double distanceTo(Node node) {
+        return Math.sqrt(sqDistanceTo(node));
     }
 
     public int getMaxConnections() {
         return maxConnections;
     }
-
-    abstract public int getCapacity();
 }
