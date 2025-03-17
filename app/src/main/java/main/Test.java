@@ -21,7 +21,7 @@ public class Test {
         int sensorSeed = 4321;
 
         State state = new State(nCenters, nSens, centerSeed, sensorSeed);
-        int bestSolutionCost = Integer.MAX_VALUE;
+        double bestSolution = Double.POSITIVE_INFINITY;
 
         while (true) {
             InitialState.inilializeConnections(state);
@@ -39,9 +39,12 @@ public class Test {
 
                 // Print final state
                 State finalState = search.getEstatFinal();
-                if (finalState.totalCost() < bestSolutionCost) {
-                    bestSolutionCost = finalState.totalCost();
+                double finalHeuristic = heuristic.getHeuristicValue(finalState);
+
+                if (finalHeuristic < bestSolution) {
+                    bestSolution = finalHeuristic;
                     search.getEstatFinal().print();
+                    System.out.println("Best Score (To minimize): " + finalHeuristic);
                 }
 
             } catch (Exception e) {

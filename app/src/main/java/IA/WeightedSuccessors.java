@@ -12,7 +12,7 @@ import aima.search.framework.SuccessorFunction;
 
 public class WeightedSuccessors implements SuccessorFunction {
     private static final int NUM_CONNECTIONS_PER_OPERATION = 4;
-    private static final int MAX_SUCCESSORS = 1000;
+    private static final int MAX_SUCCESSORS = 80000;
 
     final int PROB_CONNECT_CENTER = 10;
     final int PROB_CONNECT_NEAREST_CENTER = 50;
@@ -26,33 +26,41 @@ public class WeightedSuccessors implements SuccessorFunction {
 
         while (successors.size() < MAX_SUCCESSORS) {
             State newState = new State(state);
+            StringBuilder action = new StringBuilder();
 
             int connections = random.nextInt(NUM_CONNECTIONS_PER_OPERATION);
             for (int i = 0; i < connections; ++i)
-                makeWeightedConnection(newState);
+                makeWeightedConnection(newState, action);
 
-            successors.add(new Successor(null, state));
+            successors.add(new Successor(action.toString(), state));
         }
 
         return successors;
     }
 
-    void makeWeightedConnection(State state) {
+    void makeWeightedConnection(State state, StringBuilder action) {
         int srcId = random.nextInt(state.sensorsCount());
         Sensor src = state.problem().sensor(srcId);
 
         if (random.nextInt(100) >= PROB_CONNECT_CENTER) {
             for (int dstId : src.nearestCenters()) {
                 if (random.nextInt(100) >= PROB_CONNECT_NEAREST_CENTER) {
-                    if (state.connectToCenter(srcId, dstId) != ConnectionResult.UnableToConnect)
+                    if (state.connectToCenter(srcId, dstId) == ConnectionResult.Successfull) {
+                        action.append("ConnectToCenter(").append(src).append(", ");
+                        action.append(state.problem().center(dstId)).append(")");
                         break;
+                    }
                 }
             }
         } else {
             for (int dstId : src.nearestSensors()) {
                 if (random.nextInt(100) >= PROB_CONNECT_NEAREST_SENSOR) {
-                    if (state.connectToSensor(srcId, dstId) != ConnectionResult.UnableToConnect)
+                    if (state.connectToSensor(srcId, dstId) == ConnectionResult.Successfull) {
+                        action.append("ConnectToSensor(").append(src).append(", ");
+                        action.append(state.problem().sensor(dstId)).append(")");
                         break;
+                    }
+
                 }
             }
         }

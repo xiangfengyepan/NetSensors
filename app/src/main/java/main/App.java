@@ -9,9 +9,9 @@ public class App {
 
         // Test.printInitialConnection();
         // Test.printStateFromFiles();
-        Test.printStateFromFile(1);
+        // Test.printStateFromFile(1);
 
-        // Test.provaHC();
+        Test.provaHC();
     }
 
 }

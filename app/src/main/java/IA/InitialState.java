@@ -12,7 +12,7 @@ public final class InitialState {
     private static final int PROB_CONNECT_NEAREST_SENSOR = 40;
 
     public static void inilializeConnections(State state) {
-        Random random = new Random(4897496845l);
+        Random random = new Random();
 
         for (int srcId = 0; srcId < state.sensorsCount(); ++srcId) {
             Sensor src = state.problem().sensor(srcId);
