@@ -1,2 +1,2 @@
-./gradlew run > ./app/src/main/java/IA/outputs/output$1.out &&
-python3 ./app/src/main/java/IA/drawGraph.py
+./gradlew run > ./app/src/main/outputs/output$1.out &&
+python3 ./app/src/main/drawGraph.py
