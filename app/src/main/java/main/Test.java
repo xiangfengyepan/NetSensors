@@ -1,10 +1,10 @@
 package main;
 
+import IA.StateSuccessors;
 import IA.HeuristicCost;
 import IA.InitialState;
 import IA.SolutionSearch;
 import IA.StateParser;
-import IA.WeightedSuccessors;
 import IA.State.State;
 import aima.search.framework.HeuristicFunction;
 import aima.search.framework.SuccessorFunction;
@@ -27,8 +27,7 @@ public class Test {
             InitialState.inilializeConnections(state);
 
             // Try out different SuccessorFunctions
-            // SuccessorFunction operators = new AllSuccessors();
-            SuccessorFunction operators = new WeightedSuccessors();
+            SuccessorFunction operators = new StateSuccessors();
 
             // TODO: implement some other heuristics
             HeuristicFunction heuristic = new HeuristicCost();
