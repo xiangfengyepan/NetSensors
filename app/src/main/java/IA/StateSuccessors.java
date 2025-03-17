@@ -16,9 +16,9 @@ public final class StateSuccessors implements SuccessorFunction {
     int weightedNumConnections = 3;
     int maxWeightedStates = 1000;
 
-    private final int PROB_CONNECT_CENTER = 10;
-    private final int PROB_CONNECT_NEAREST_CENTER = 50;
-    private final int PROB_CONNECT_NEAREST_SENSOR = 30;
+    private static final int PROB_CONNECT_CENTER = 10;
+    private static final int PROB_CONNECT_NEAREST_CENTER = 50;
+    private static final int PROB_CONNECT_NEAREST_SENSOR = 30;
 
     private final Random random = new Random();
 

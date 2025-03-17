@@ -133,7 +133,7 @@ for input_file in input_files:
             index = number
 
         file_path = os.path.join(in_file_path_dir, input_file)
-        output_path = os.path.join(out_file_path_dir, f"graph{index}.png")
+        output_path = os.path.join(out_file_path_dir, f"graph{index}.pdf")
 
         # Build the graph and generate the image
         graph, total_cost, total_volume = build_graph_from_file(file_path)

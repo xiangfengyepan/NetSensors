@@ -33,7 +33,8 @@ public final class ProblemParameters {
             } while (!occupied.add((long) cx << 32 | cy));
 
             final int[] capacities = { 1, 2, 5 };
-            int capacity = capacities[rand.nextInt(capacities.length)];
+            // int capacity = capacities[rand.nextInt(capacities.length)];
+            int capacity = capacities[i % 3];
 
             sensors[i] = new Sensor(capacity, cx, cy);
         }
