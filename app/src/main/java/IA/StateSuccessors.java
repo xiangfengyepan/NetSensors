@@ -12,23 +12,26 @@ import aima.search.framework.Successor;
 import aima.search.framework.SuccessorFunction;
 
 public final class StateSuccessors implements SuccessorFunction {
-    int exaustiveNumConnections = 1;
     int weightedNumConnections = 3;
-    int maxWeightedStates = 1000;
 
     private static final int PROB_CONNECT_CENTER = 10;
     private static final int PROB_CONNECT_NEAREST_CENTER = 50;
     private static final int PROB_CONNECT_NEAREST_SENSOR = 30;
 
     private final Random random = new Random();
+    private final StringBuilder action = new StringBuilder();
+
+    private final int connectToNearestN = 10;
 
     public List<Successor> getSuccessors(Object objectState) {
         State state = (State) objectState;
-        ArrayList<Successor> successors = new ArrayList<>(maxWeightedStates);
+        int aproximatedCapacity = state.sensorsCount() * (state.sensorsCount() + state.centersCount());
+        ArrayList<Successor> successors = new ArrayList<>(aproximatedCapacity);
 
         // Exaustive successors
-        doExausitveConnections(state, exaustiveNumConnections, successors, "");
+        connect1(state, successors);
 
+        /*
         // Weighted successors
         for (int i = 0; i < maxWeightedStates; ++i) {
             State newState = new State(state);
@@ -42,45 +45,67 @@ public final class StateSuccessors implements SuccessorFunction {
             if (action.length() > 0)
                 successors.add(new Successor(action.toString(), state));
         }
+        */
+
         return successors;
     }
 
-    void doExausitveConnections(State state, int n, ArrayList<Successor> successors, String action) {
-        if (n <= 0)
-            return;
-
-        tryAllConnections(state, (newAction, newState) -> {
-            String allActions = action + newAction;
-            successors.add(new Successor(allActions, newState));
-            doExausitveConnections(newState, n - 1, successors, allActions);
-        });
-    }
-
-    void tryAllConnections(State state, BiConsumer<String, State> callback) {
+    void connect1(State state, ArrayList<Successor> successors) {
         for (int src = 0; src < state.sensorsCount(); ++src) {
             for (int centerDst = 0; centerDst < state.centersCount(); ++centerDst) {
                 State newState = new State(state);
                 if (newState.connectToCenter(src, centerDst) == ConnectionResult.Successfull) {
-                    StringBuilder action = new StringBuilder("ConnectToCenter(");
-                    action.append(state.problem().sensor(src)).append(", ");
-                    action.append(state.problem().center(centerDst)).append(")");
+                    action.setLength(0);
+                    action.append(src).append(" -> center ").append(centerDst);
 
-                    callback.accept(action.toString(), newState);
+                    successors.add(new Successor(action.toString(), newState));
+
+                    connect2(newState, successors, src);
                 }
             }
 
-            for (int dst = 0; dst < state.sensorsCount(); ++dst) {
+            int[] nearestSensors = state.problem().sensor(src).nearestSensors();
+            for (int i = 0; i < nearestSensors.length; ++i) {
+                int dst = nearestSensors[i];
+
                 State newState = new State(state);
                 if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
-                    StringBuilder action = new StringBuilder("ConnectToSensor(");
-                    action.append(state.problem().sensor(src)).append(", ");
-                    action.append(state.problem().sensor(dst)).append(")");
+                    action.setLength(0);
+                    action.append(src).append(" -> ").append(dst);
 
-                    callback.accept(action.toString(), newState);
+                    successors.add(new Successor(action.toString(), newState));
+
+                    connect2(newState, successors, src);
                 }
             }
         }
     }
+
+    void connect2(State state, ArrayList<Successor> successors, int skipSensorId) {
+        action.append(" & ");
+        int baseLength = action.length();
+
+        int dst = skipSensorId;
+
+        int[] nearestSensors = state.problem().sensor(skipSensorId).nearestSensors();
+        for (int i = 0; i < 20; ++i) {
+            int src = nearestSensors[i];
+
+            if (src == skipSensorId)
+                continue;
+
+
+            State newState = new State(state);
+            if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
+                action.setLength(baseLength);
+                action.append(src).append(" -> ").append(dst);
+
+                successors.add(new Successor(action.toString(), newState));
+            }
+        }
+    }
+
+
 
     void makeWeightedConnection(State state, StringBuilder action) {
         int srcId = random.nextInt(state.sensorsCount());

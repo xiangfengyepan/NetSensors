@@ -42,7 +42,9 @@ public class Test {
 
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
-                    search.getEstatFinal().print();
+                    // search.getEstatFinal().print();
+                    System.out.println("Cost: " + finalState.totalCost());
+                    System.out.println("Volume: " + finalState.totalVolume());
                     System.out.println("Best Score (To minimize): " + finalHeuristic);
                 }
 

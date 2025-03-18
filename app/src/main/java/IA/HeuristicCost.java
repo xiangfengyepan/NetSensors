@@ -8,6 +8,7 @@ public class HeuristicCost implements HeuristicFunction {
 		State state = (State) objectState;
 		double cost = state.totalCost();
 		double volume = state.totalVolume();
-		return Math.pow(cost, 1. / 8.) / volume;
+		//return Math.pow(cost, 1. / 8.) / volume;
+        return cost / (volume * volume * volume * volume * volume * volume * volume * volume * volume);
 	}
 }
