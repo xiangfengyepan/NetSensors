@@ -17,8 +17,8 @@ public class Test {
     public static void provaHC(boolean repeatSearch) {
         int nCenters = 4;
         int nSens = 100;
-        int centerSeed = 0;
-        int sensorSeed = 1234;
+        int centerSeed = 1234;
+        int sensorSeed = 4321;
 
         State state = new State(nCenters, nSens, centerSeed, sensorSeed);
         double bestSolution = Double.POSITIVE_INFINITY;

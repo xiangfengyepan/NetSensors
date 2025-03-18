@@ -232,9 +232,25 @@ public final class Graph {
             System.out.print(" cost: " + node.connectionCost());
             System.out.print("\t\t");
             System.out.println(" " + src + " -> " + dst);
+
         }
+
+        for (int centerId = 0; centerId < centersCount(); ++centerId) {
+            CenterNode node = centerById(centerId);
+            
+            int currentConnections = 0;
+            for (int id = 0; id < sensorsCount(); ++id) {
+                SensorNode sensor = sensorById(id);
+                if (sensor.isConnectedToDataCenter() && sensor.centerId() == centerId)
+                    ++currentConnections;
+            }
+            System.out.println("center " + node.center() + " volumne: " + node.volume() + " connections: " + currentConnections);
+        }
+
 
         System.out.println("Cost: " + totalCost());
         System.out.println("Volumne: " + totalVolume() + " Mbits");
+
+     
     }
 }
