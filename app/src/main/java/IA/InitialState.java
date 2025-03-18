@@ -7,33 +7,33 @@ import IA.State.State;
 import IA.State.ProblemParameters.Sensor;
 
 public final class InitialState {
-    private static final int PROB_CONNECT_CENTER = 50;
-    private static final int PROB_CONNECT_NEAREST_CENTER = 80;
-    private static final int PROB_CONNECT_NEAREST_SENSOR = 40;
+    private static final int PROB_CONNECT_CENTER = 80;
+    private static final double SENSORS_DEGREE = 4.; // See Function: \operatorname{round}\left(n\cdot x^{g}\right)
+    private static final Random random = new Random();
 
     public static void inilializeConnections(State state) {
-        Random random = new Random();
 
         for (int srcId = 0; srcId < state.sensorsCount(); ++srcId) {
             Sensor src = state.problem().sensor(srcId);
 
-            for (int dstId : src.nearestCenters()) {
-                if (random.nextInt(100) >= PROB_CONNECT_NEAREST_CENTER) {
+            int distCenter = src.sqDistanceTo(state.problem().center(src.nearestCenters()[0]));
+            int distSensor = src.sqDistanceTo(state.problem().sensor(src.nearestSensors()[0]));
+
+            boolean connectToCenter = distCenter <= distSensor || random.nextInt(100) >= PROB_CONNECT_CENTER;
+
+            if (connectToCenter) {
+                for (int dstId : src.nearestCenters()) {
                     if (state.connectToCenter(srcId, dstId) != ConnectionResult.UnableToConnect)
                         break;
                 }
-            }
-            state.totalCost();
-            if (random.nextInt(100) >= PROB_CONNECT_CENTER)
-                continue;
+            } else {
+                int index = 0;
+                int n = src.nearestSensors().length / 2;
 
-            for (int dstId : src.nearestSensors()) {
-                if (random.nextInt(100) >= PROB_CONNECT_NEAREST_SENSOR) {
-                    if (state.connectToSensor(srcId, dstId) != ConnectionResult.UnableToConnect)
-                        break;
-                }
+                do {
+                    index = (int) Math.round(n * Math.pow(random.nextDouble(), SENSORS_DEGREE));
+                } while (state.connectToSensor(srcId, src.nearestSensors()[index]) == ConnectionResult.UnableToConnect);
             }
-            state.totalCost();
         }
     }
 

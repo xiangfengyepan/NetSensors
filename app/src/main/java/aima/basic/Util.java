@@ -23,7 +23,7 @@ public class Util {
 	public static ArrayList range(int start, int end) {
 		ArrayList retVal = new ArrayList();
 		for (int i = start; i <= end; i++) {
-			retVal.add(new Integer(i));
+			retVal.add(Integer.valueOf(i));
 		}
 		return retVal;
 	}
@@ -31,7 +31,7 @@ public class Util {
 	public static ArrayList getFilledArrayList(int size, int value) {
 		ArrayList retVal = new ArrayList();
 		for (int i = 0; i < size; i++) {
-			retVal.add(new Integer(value));
+			retVal.add(Integer.valueOf(value));
 		}
 		return retVal;
 	}

@@ -8,7 +8,9 @@ public class HeuristicCost implements HeuristicFunction {
 		State state = (State) objectState;
 		double cost = state.totalCost();
 		double volume = state.totalVolume();
-		//return Math.pow(cost, 1. / 8.) / volume;
-        return cost / (volume * volume * volume * volume * volume * volume * volume * volume * volume);
+
+		// Surprisingly, multiplying 8 times is significantly faster than Math.pow(_, 8)
+		double volume2 = volume * volume;
+		return cost / (volume2 * volume2 * volume2 * volume2);
 	}
 }

@@ -1,48 +1,24 @@
 package IA.State;
 
-import IA.State.Graph.SensorNode;
 import IA.State.ProblemParameters.Center;
-import IA.State.ProblemParameters.ProblemParameters;
 import IA.State.ProblemParameters.Sensor;
 
-public final class State {
-
-    private final Graph graph;
+public final class State extends Graph {
 
     public State(State state) {
-        graph = new Graph(state.graph);
+        super(state);
     }
 
     public State(int nCenters, int nSens, int centerSeed, int sensorSeed) {
-        graph = new Graph(nCenters, nSens, centerSeed, sensorSeed);
-    }
-
-    public ProblemParameters problem() {
-        return graph.problem();
-    }
-
-    public int centersCount() {
-        return graph.centersCount();
-    }
-
-    public int sensorsCount() {
-        return graph.sensorsCount();
-    }
-
-    public int totalCost() {
-        return graph.totalCost();
-    }
-
-    public int totalVolume() {
-        return graph.totalVolume();
+        super(nCenters, nSens, centerSeed, sensorSeed);
     }
 
     public ConnectionResult connectToSensor(int srcSensorId, int dstSensorId) {
         if (srcSensorId == dstSensorId)
             return ConnectionResult.UnableToConnect;
 
-        SensorNode src = graph.sensorById(srcSensorId);
-        SensorNode dst = graph.sensorById(dstSensorId);
+        SensorNode src = sensorById(srcSensorId);
+        SensorNode dst = sensorById(dstSensorId);
 
         if (src.dstId() == dst.id())
             return ConnectionResult.AlreadyConnected;
@@ -58,7 +34,7 @@ public final class State {
         // Check MAX_CONNECTIONS
         int currentConnections = 0;
         for (int id = 0; id < sensorsCount(); ++id) {
-            if (graph.sensorById(id).dstId() == dstSensorId)
+            if (sensorById(id).dstId() == dstSensorId)
                 ++currentConnections;
         }
         if (currentConnections + 1 > Sensor.MAX_CONNECTIONS)
@@ -76,7 +52,7 @@ public final class State {
     }
 
     public ConnectionResult connectToCenter(int srcSensorId, int dstCenterId) {
-        SensorNode src = graph.sensorById(srcSensorId);
+        SensorNode src = sensorById(srcSensorId);
 
         if (src.isConnectedToDataCenter() && src.centerId() == dstCenterId)
             return ConnectionResult.AlreadyConnected;
@@ -84,7 +60,7 @@ public final class State {
         // Check MAX_CONNECTIONS
         int currentConnections = 0;
         for (int id = 0; id < sensorsCount(); ++id) {
-            SensorNode sensor = graph.sensorById(id);
+            SensorNode sensor = sensorById(id);
             if (sensor.isConnectedToDataCenter() && sensor.centerId() == dstCenterId)
                 ++currentConnections;
         }
@@ -112,10 +88,6 @@ public final class State {
 
         if (!node.isConnectedToDataCenter())
             sendAdditionalVolume(node.dst(), volume);
-    }
-
-    public void print() {
-        graph.print();
     }
 
     public static enum ConnectionResult {

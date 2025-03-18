@@ -14,16 +14,16 @@ public class Test {
         // TODO
     }
 
-    public static void provaHC(boolean repeatSearch) {
+    public static void provaHC(int iterations) {
         int nCenters = 4;
         int nSens = 100;
-        int centerSeed = 0;
-        int sensorSeed = 1234;
+        int centerSeed = 1234; // 0
+        int sensorSeed = 4321; // 1234
 
         State state = new State(nCenters, nSens, centerSeed, sensorSeed);
         double bestSolution = Double.POSITIVE_INFINITY;
 
-        do {
+        for (int i = 0; i < iterations; ++i) {
             InitialState.inilializeConnections(state);
 
             // Try out different SuccessorFunctions
@@ -51,7 +51,7 @@ public class Test {
             } catch (Exception e) {
                 System.err.println("Nothing happends: " + e.toString());
             }
-        } while (repeatSearch);
+        }
     }
 
     public static void printInitialConnection() {

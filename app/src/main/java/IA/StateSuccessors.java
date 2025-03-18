@@ -2,65 +2,71 @@ package IA;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.function.BiConsumer;
 
 import IA.State.State;
 import IA.State.State.ConnectionResult;
-import IA.State.ProblemParameters.Sensor;
 import aima.search.framework.Successor;
 import aima.search.framework.SuccessorFunction;
 
 public final class StateSuccessors implements SuccessorFunction {
-    int weightedNumConnections = 3;
-
-    private static final int PROB_CONNECT_CENTER = 10;
-    private static final int PROB_CONNECT_NEAREST_CENTER = 50;
-    private static final int PROB_CONNECT_NEAREST_SENSOR = 30;
-
-    private final Random random = new Random();
     private final StringBuilder action = new StringBuilder();
 
-    private final int connectToNearestN = 10;
+    private final HeuristicCost heuristic = new HeuristicCost();
+    double bestScore;
+
+    ArrayList<Successor> successors = new ArrayList<>();
+    State newState;
+    State firstConnectionState;
 
     public List<Successor> getSuccessors(Object objectState) {
-        State state = (State) objectState;
-        int aproximatedCapacity = state.sensorsCount() * (state.sensorsCount() + state.centersCount());
-        ArrayList<Successor> successors = new ArrayList<>(aproximatedCapacity);
+        State currentState = (State) objectState;
+        successors.clear();
+
+        newState = new State(currentState);
+        firstConnectionState = new State(currentState);
+
+        bestScore = heuristic.getHeuristicValue(currentState);
 
         // Exaustive successors
-        connect1(state, successors);
-
-        /*
-        // Weighted successors
-        for (int i = 0; i < maxWeightedStates; ++i) {
-            State newState = new State(state);
-            StringBuilder action = new StringBuilder();
-
-            int connections = exaustiveNumConnections + 1
-                    + random.nextInt(weightedNumConnections - exaustiveNumConnections);
-            for (int connected = 0; connected < connections; ++connected)
-                makeWeightedConnection(newState, action);
-
-            if (action.length() > 0)
-                successors.add(new Successor(action.toString(), state));
-        }
-        */
+        exaustiveConnections(currentState, successors);
 
         return successors;
     }
 
-    void connect1(State state, ArrayList<Successor> successors) {
+    void resetNewState(State state) {
+        // //// Normal slow code ////
+        // newState = new State(state);
+
+        //// Questionable but significantly optimized version (3 times faster) ////
+        newState.copy(state);
+    }
+
+    void addState() {
+        // //// Normal slow code ////
+        // successors.add(new Successor(action.toString(), newState));
+
+        //// Questionable but significantly optimized version (3 times faster) ////
+        double score = heuristic.getHeuristicValue(newState);
+        if (score < bestScore) {
+            bestScore = score;
+            successors.add(new Successor(action.toString(), newState));
+            newState = new State(newState);
+        }
+    }
+
+    void exaustiveConnections(State state, ArrayList<Successor> successors) {
         for (int src = 0; src < state.sensorsCount(); ++src) {
             for (int centerDst = 0; centerDst < state.centersCount(); ++centerDst) {
-                State newState = new State(state);
+
+                resetNewState(state);
                 if (newState.connectToCenter(src, centerDst) == ConnectionResult.Successfull) {
                     action.setLength(0);
                     action.append(src).append(" -> center ").append(centerDst);
 
-                    successors.add(new Successor(action.toString(), newState));
+                    addState();
 
-                    connect2(newState, successors, src);
+                    firstConnectionState.copy(newState);
+                    connectDouble(successors, src, 50);
                 }
             }
 
@@ -68,69 +74,35 @@ public final class StateSuccessors implements SuccessorFunction {
             for (int i = 0; i < nearestSensors.length; ++i) {
                 int dst = nearestSensors[i];
 
-                State newState = new State(state);
+                resetNewState(state);
                 if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
                     action.setLength(0);
                     action.append(src).append(" -> ").append(dst);
 
-                    successors.add(new Successor(action.toString(), newState));
+                    addState();
 
-                    connect2(newState, successors, src);
+                    firstConnectionState.copy(newState);
+                    connectDouble(successors, src, 30);
                 }
             }
         }
     }
 
-    void connect2(State state, ArrayList<Successor> successors, int skipSensorId) {
+    void connectDouble(ArrayList<Successor> successors, int dst, int connectToNearestN) {
         action.append(" & ");
         int baseLength = action.length();
 
-        int dst = skipSensorId;
-
-        int[] nearestSensors = state.problem().sensor(skipSensorId).nearestSensors();
-        for (int i = 0; i < 20; ++i) {
+        int[] nearestSensors = firstConnectionState.problem().sensor(dst).nearestSensors();
+        int nConnections = Math.min(nearestSensors.length, connectToNearestN);
+        for (int i = 0; i < nConnections; ++i) {
             int src = nearestSensors[i];
 
-            if (src == skipSensorId)
-                continue;
-
-
-            State newState = new State(state);
+            resetNewState(firstConnectionState);
             if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
-                action.setLength(baseLength);
+                action.delete(baseLength, action.length());
                 action.append(src).append(" -> ").append(dst);
 
-                successors.add(new Successor(action.toString(), newState));
-            }
-        }
-    }
-
-
-
-    void makeWeightedConnection(State state, StringBuilder action) {
-        int srcId = random.nextInt(state.sensorsCount());
-        Sensor src = state.problem().sensor(srcId);
-
-        if (random.nextInt(100) >= PROB_CONNECT_CENTER) {
-            for (int dstId : src.nearestCenters()) {
-                if (random.nextInt(100) >= PROB_CONNECT_NEAREST_CENTER) {
-                    if (state.connectToCenter(srcId, dstId) == ConnectionResult.Successfull) {
-                        action.append("ConnectToCenter(").append(src).append(", ");
-                        action.append(state.problem().center(dstId)).append(")");
-                        break;
-                    }
-                }
-            }
-        } else {
-            for (int dstId : src.nearestSensors()) {
-                if (random.nextInt(100) >= PROB_CONNECT_NEAREST_SENSOR) {
-                    if (state.connectToSensor(srcId, dstId) == ConnectionResult.Successfull) {
-                        action.append("ConnectToSensor(").append(src).append(", ");
-                        action.append(state.problem().sensor(dstId)).append(")");
-                        break;
-                    }
-
-                }
+                addState();
             }
         }
     }

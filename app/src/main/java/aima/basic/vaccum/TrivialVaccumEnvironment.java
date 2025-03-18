@@ -116,7 +116,7 @@ public class TrivialVaccumEnvironment extends Environment {
 	}
 
 	private void setAgentPerformance(Agent a, int i) {
-		a.setAttribute("performance", new Integer(i));
+		a.setAttribute("performance", Integer.valueOf(i));
 	}
 
 	public int getAgentperformance(Agent a) {

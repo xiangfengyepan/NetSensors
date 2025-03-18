@@ -5,49 +5,53 @@ import IA.State.ProblemParameters.Node;
 import IA.State.ProblemParameters.ProblemParameters;
 import IA.State.ProblemParameters.Sensor;
 
-public final class Graph {
+public class Graph {
     private final ProblemParameters problem;
 
-    // 0..nodesDst.length => index to `sensors`
-    // -1 => connected to dataCenter
     private final short[] sensorsDst;
-    private final short[] sensorsCenter;
     private final short[] sensorsSendingVolume;
 
-    private final int[] centersCost;
     private final short[] centersVolume;
+    int totalCost;
 
-    Graph(Graph state) {
+    public Graph(Graph state) {
         problem = state.problem;
 
         sensorsDst = state.sensorsDst.clone();
-        sensorsCenter = state.sensorsCenter.clone();
         sensorsSendingVolume = state.sensorsSendingVolume.clone();
-        centersCost = state.centersCost.clone();
         centersVolume = state.centersVolume.clone();
+        totalCost = state.totalCost;
     }
 
     public Graph(int nCenters, int nSens, int centerSeed, int sensorSeed) {
         problem = new ProblemParameters(nCenters, nSens, centerSeed, sensorSeed);
 
         sensorsDst = new short[nSens];
-        sensorsCenter = new short[nSens];
         sensorsSendingVolume = new short[nSens];
-        centersCost = new int[nCenters];
+        totalCost = 0;
         centersVolume = new short[nCenters];
 
         // Initialize with non zero values.
         // This initialization does not check all the problem restrictions.
         // For correct initializations, use a InitialState class.
         for (int i = 0; i < nSens; ++i) {
-            sensorsDst[i] = -1;
-            sensorsCenter[i] = (short) problem.sensor(i).nearestCenters()[0];
+            int center = problem.sensor(i).nearestCenters()[0];
+
+            sensorsDst[i] = (short) (-center - 1);
             sensorsSendingVolume[i] = (short) problem.sensor(i).maxCaptureVolume();
 
-            int sqDist = problem.sensor(i).sqDistanceTo(problem.center(sensorsCenter[i]));
-            centersCost[sensorsCenter[i]] += sqDist * sensorsSendingVolume[i];
-            centersVolume[sensorsCenter[i]] += sensorsSendingVolume[i];
+            int sqDist = problem.sensor(i).sqDistanceTo(problem.center(center));
+            totalCost += sqDist * sensorsSendingVolume[i];
+            centersVolume[center] += sensorsSendingVolume[i];
         }
+    }
+
+    public void copy(Graph graph) {
+        assert problem == graph.problem;
+        System.arraycopy(graph.sensorsDst, 0, sensorsDst, 0, sensorsDst.length);
+        System.arraycopy(graph.sensorsSendingVolume, 0, sensorsSendingVolume, 0, sensorsSendingVolume.length);
+        System.arraycopy(graph.centersVolume, 0, centersVolume, 0, centersVolume.length);
+        totalCost = graph.totalCost;
     }
 
     public ProblemParameters problem() {
@@ -63,9 +67,6 @@ public final class Graph {
     }
 
     public int totalCost() {
-        int totalCost = 0;
-        for (int cost : centersCost)
-            totalCost += cost;
         return totalCost;
     }
 
@@ -85,7 +86,7 @@ public final class Graph {
     }
 
     public final class SensorNode {
-        private int id;
+        private final int id;
 
         private SensorNode(int id) {
             assert 0 <= id && id < sensorsDst.length;
@@ -115,7 +116,7 @@ public final class Graph {
          * @return true if it's connected directly to a center
          */
         public boolean isConnectedToDataCenter() {
-            return sensorsDst[id] == -1;
+            return sensorsDst[id] < 0;
         }
 
         public int dstId() {
@@ -127,11 +128,11 @@ public final class Graph {
         }
 
         public int centerId() {
-            return sensorsCenter[id];
+            return -1 - sensorsDst[id];
         }
 
         public CenterNode center() {
-            return new CenterNode(sensorsCenter[id]);
+            return new CenterNode(-1 - sensorsDst[id]);
         }
 
         public int sendingVolume() {
@@ -145,44 +146,42 @@ public final class Graph {
         public void setSendingVolume(int amount) {
             if (isConnectedToDataCenter())
                 center().setVolume(center().volume() - limitedSendingVolume());
-            center().setCost(center().cost() - connectionCost());
+            totalCost -= connectionCost();
 
             sensorsSendingVolume[id] = (short) amount;
 
             if (isConnectedToDataCenter())
                 center().setVolume(center().volume() + limitedSendingVolume());
-            center().setCost(center().cost() + connectionCost());
+            totalCost += connectionCost();
         }
 
         public void connectToDst(SensorNode node) {
             if (isConnectedToDataCenter())
                 center().setVolume(center().volume() - limitedSendingVolume());
-            center().setCost(center().cost() - connectionCost());
+            totalCost -= connectionCost();
 
             sensorsDst[id] = (short) node.id;
-            sensorsCenter[id] = (short) node.centerId();
 
             if (isConnectedToDataCenter())
                 center().setVolume(center().volume() + limitedSendingVolume());
-            center().setCost(center().cost() + connectionCost());
+            totalCost += connectionCost();
         }
 
         public void connectToCenterId(int centerId) {
             if (isConnectedToDataCenter())
                 center().setVolume(center().volume() - limitedSendingVolume());
-            center().setCost(center().cost() - connectionCost());
+            totalCost -= connectionCost();
 
-            sensorsDst[id] = -1;
-            sensorsCenter[id] = (short) centerId;
+            sensorsDst[id] = (short) (-centerId - 1);
 
             if (isConnectedToDataCenter())
                 center().setVolume(center().volume() + limitedSendingVolume());
-            center().setCost(center().cost() + connectionCost());
+            totalCost += connectionCost();
         }
     }
 
     public final class CenterNode {
-        private int id;
+        private final int id;
 
         private CenterNode(int id) {
             assert 0 <= id && id < centersCount();
@@ -199,14 +198,6 @@ public final class Graph {
 
         public int volume() {
             return centersVolume[id];
-        }
-
-        private int cost() {
-            return centersCost[id];
-        }
-
-        private void setCost(int cost) {
-            centersCost[id] = cost;
         }
 
         private void setVolume(int volume) {

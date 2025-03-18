@@ -4,9 +4,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 CENTER_CAPACITY = 150
-NODE_TEXT_FONT_SIZE = 4
-TOTAL_TEXT_FONT_SIZE = 6
-DPI = 300
+NODE_TEXT_FONT_SIZE = 8
+TOTAL_TEXT_FONT_SIZE = 20
 
 # Improved regular expression to detect sensor-to-sensor and sensor-to-center connections
 edge_pattern = re.compile(
@@ -78,7 +77,7 @@ def draw_graph(G, total_cost, total_volume, output_path):
         return
     
     num_nodes = len(G.nodes)
-    figsize = (max(10, num_nodes/2), max(6, num_nodes/2))
+    figsize = (max(10, num_nodes/3), max(6, num_nodes/3))
     plt.figure(figsize=figsize)
     
     pos = nx.get_node_attributes(G, "pos")  
@@ -101,7 +100,7 @@ def draw_graph(G, total_cost, total_volume, output_path):
     plt.figtext(0.01, 0.03, f"Total Volume: {total_volume} Mbits", fontsize=TOTAL_TEXT_FONT_SIZE, ha="left")
 
     # Save image
-    plt.savefig(output_path, dpi=DPI)
+    plt.savefig(output_path)
     plt.close()
     print(f"Graph saved in '{output_path}'")
 
