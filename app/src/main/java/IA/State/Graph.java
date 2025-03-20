@@ -23,18 +23,18 @@ public class Graph {
         totalCost = state.totalCost;
     }
 
-    public Graph(int nCenters, int nSens, int centerSeed, int sensorSeed) {
-        problem = new ProblemParameters(nCenters, nSens, centerSeed, sensorSeed);
+    public Graph(ProblemParameters problem) {
+        this.problem = problem;
 
-        sensorsDst = new short[nSens];
-        sensorsSendingVolume = new short[nSens];
+        sensorsDst = new short[problem.sensorsCount()];
+        sensorsSendingVolume = new short[problem.sensorsCount()];
         totalCost = 0;
-        centersVolume = new short[nCenters];
+        centersVolume = new short[problem.centersCount()];
 
         // Initialize with non zero values.
         // This initialization does not check all the problem restrictions.
         // For correct initializations, use a InitialState class.
-        for (int i = 0; i < nSens; ++i) {
+        for (int i = 0; i < problem.sensorsCount(); ++i) {
             int center = problem.sensor(i).nearestCenters()[0];
 
             sensorsDst[i] = (short) (-center - 1);
@@ -102,6 +102,13 @@ public class Graph {
                 return sensor().sqDistanceTo(center().center());
             else
                 return sensor().sqDistanceTo(dst().sensor());
+        }
+
+        public Node dstNode() {
+            if (isConnectedToDataCenter())
+                return problem.center(centerId());
+            else
+                return problem.sensor(dstId());
         }
 
         public int connectionCost() {

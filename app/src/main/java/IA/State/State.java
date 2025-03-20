@@ -1,6 +1,7 @@
 package IA.State;
 
 import IA.State.ProblemParameters.Center;
+import IA.State.ProblemParameters.ProblemParameters;
 import IA.State.ProblemParameters.Sensor;
 
 public final class State extends Graph {
@@ -10,7 +11,11 @@ public final class State extends Graph {
     }
 
     public State(int nCenters, int nSens, int centerSeed, int sensorSeed) {
-        super(nCenters, nSens, centerSeed, sensorSeed);
+        super(new ProblemParameters(nCenters, nSens, centerSeed, sensorSeed));
+    }
+
+    public State(ProblemParameters problem) {
+        super(problem);
     }
 
     public ConnectionResult connectToSensor(int srcSensorId, int dstSensorId) {

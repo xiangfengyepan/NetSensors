@@ -22,14 +22,15 @@ public class Test {
 
         State state = new State(nCenters, nSens, centerSeed, sensorSeed);
         double bestSolution = Double.POSITIVE_INFINITY;
+        State bestSolutionState = state;
 
+        // Try out different SuccessorFunctions
+        SuccessorFunction operators = new StateSuccessors(state.problem());
+
+        double averageHeuristic = 0;
         for (int i = 0; i < iterations; ++i) {
             InitialState.inilializeConnections(state);
 
-            // Try out different SuccessorFunctions
-            SuccessorFunction operators = new StateSuccessors();
-
-            // TODO: implement some other heuristics
             HeuristicFunction heuristic = new HeuristicCost();
 
             try {
@@ -39,6 +40,7 @@ public class Test {
                 // Print final state
                 State finalState = search.getEstatFinal();
                 double finalHeuristic = heuristic.getHeuristicValue(finalState);
+                averageHeuristic += finalHeuristic / iterations;
 
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
@@ -52,6 +54,10 @@ public class Test {
                 System.err.println("Nothing happends: " + e.toString());
             }
         }
+
+        bestSolutionState.print();
+        System.out.println("Avg Score: " + averageHeuristic);
+        System.out.println("Best Score (To minimize): " + bestSolution);
     }
 
     public static void printInitialConnection() {
