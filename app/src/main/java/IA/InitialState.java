@@ -9,7 +9,7 @@ import IA.State.ProblemParameters.Sensor;
 public final class InitialState {
     private static final int PROB_CONNECT_CENTER = 80;
     private static final double SENSORS_DEGREE = 4.; // See Function: \operatorname{round}\left(n\cdot x^{g}\right)
-    private static final Random random = new Random();
+    private static final Random random = new Random(9876134l);
 
     public static void inilializeConnections(State state) {
 

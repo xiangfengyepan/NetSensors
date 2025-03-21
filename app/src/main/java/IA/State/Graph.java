@@ -11,6 +11,8 @@ public class Graph {
     private final short[] sensorsDst;
     private final short[] sensorsSendingVolume;
 
+    private final byte[] receivingSensorCount;
+
     private final short[] centersVolume;
     int totalCost;
 
@@ -20,6 +22,7 @@ public class Graph {
         sensorsDst = state.sensorsDst.clone();
         sensorsSendingVolume = state.sensorsSendingVolume.clone();
         centersVolume = state.centersVolume.clone();
+        receivingSensorCount = state.receivingSensorCount.clone();
         totalCost = state.totalCost;
     }
 
@@ -28,6 +31,7 @@ public class Graph {
 
         sensorsDst = new short[problem.sensorsCount()];
         sensorsSendingVolume = new short[problem.sensorsCount()];
+        receivingSensorCount = new byte[problem.centersCount() + problem.sensorsCount()];
         totalCost = 0;
         centersVolume = new short[problem.centersCount()];
 
@@ -43,6 +47,8 @@ public class Graph {
             int sqDist = problem.sensor(i).sqDistanceTo(problem.center(center));
             totalCost += sqDist * sensorsSendingVolume[i];
             centersVolume[center] += sensorsSendingVolume[i];
+
+            receivingSensorCount[center] += 1;
         }
     }
 
@@ -50,6 +56,7 @@ public class Graph {
         assert problem == graph.problem;
         System.arraycopy(graph.sensorsDst, 0, sensorsDst, 0, sensorsDst.length);
         System.arraycopy(graph.sensorsSendingVolume, 0, sensorsSendingVolume, 0, sensorsSendingVolume.length);
+        System.arraycopy(graph.receivingSensorCount, 0, receivingSensorCount, 0, receivingSensorCount.length);
         System.arraycopy(graph.centersVolume, 0, centersVolume, 0, centersVolume.length);
         totalCost = graph.totalCost;
     }
@@ -111,6 +118,10 @@ public class Graph {
                 return problem.sensor(dstId());
         }
 
+        public int receivingSensorCount() {
+            return receivingSensorCount[id + centersCount()];
+        }
+
         public int connectionCost() {
             return connectionSqDistance() * limitedSendingVolume();
         }
@@ -163,26 +174,38 @@ public class Graph {
         }
 
         public void connectToDst(SensorNode node) {
-            if (isConnectedToDataCenter())
+            if (isConnectedToDataCenter()){
                 center().setVolume(center().volume() - limitedSendingVolume());
+                receivingSensorCount[centerId()] -= 1;
+            } else
+                receivingSensorCount[dstId() + centersCount()] -= 1;
             totalCost -= connectionCost();
 
             sensorsDst[id] = (short) node.id;
 
-            if (isConnectedToDataCenter())
+            if (isConnectedToDataCenter()){
                 center().setVolume(center().volume() + limitedSendingVolume());
+                receivingSensorCount[centerId()] += 1;
+            } else
+                receivingSensorCount[dstId() + centersCount()] += 1;
             totalCost += connectionCost();
         }
 
         public void connectToCenterId(int centerId) {
-            if (isConnectedToDataCenter())
+            if (isConnectedToDataCenter()) {
                 center().setVolume(center().volume() - limitedSendingVolume());
+                receivingSensorCount[centerId()] -= 1;
+            } else
+                receivingSensorCount[dstId() + centersCount()] -= 1;
             totalCost -= connectionCost();
 
             sensorsDst[id] = (short) (-centerId - 1);
 
-            if (isConnectedToDataCenter())
+            if (isConnectedToDataCenter()) {
                 center().setVolume(center().volume() + limitedSendingVolume());
+                receivingSensorCount[centerId()] += 1;
+            } else
+                receivingSensorCount[dstId() + centersCount()] += 1;
             totalCost += connectionCost();
         }
     }
@@ -198,6 +221,10 @@ public class Graph {
         public int id() {
             return id;
         }
+        
+        public int receivingSensorCount() {
+            return receivingSensorCount[id];
+        }
 
         public Center center() {
             return problem.center(id);
@@ -211,6 +238,15 @@ public class Graph {
             centersVolume[id] = (short) volume;
         }
     }
+
+    private void assertReceivingSensorCount() {
+        for (int i = 0; i < problem.centersCount(); ++i) {
+            int x = centerById(i).receivingSensorCount();
+            int y = receivingSensorCount[i];
+            assert x == y;
+        }
+    }
+
 
     public void print() {
         problem.print();

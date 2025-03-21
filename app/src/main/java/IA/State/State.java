@@ -37,21 +37,16 @@ public final class State extends Graph {
         }
 
         // Check MAX_CONNECTIONS
-        int currentConnections = 0;
-        for (int id = 0; id < sensorsCount(); ++id) {
-            if (sensorById(id).dstId() == dstSensorId)
-                ++currentConnections;
-        }
+        int currentConnections = dst.receivingSensorCount();
         if (currentConnections + 1 > Sensor.MAX_CONNECTIONS)
             return ConnectionResult.UnableToConnect;
 
         // ------- All checks passed -------
         // ------- Updateing State -------
 
-        if (!src.isConnectedToDataCenter())
-            sendAdditionalVolume(src.dst(), -src.sendingVolume());
+        sendAdditionalVolume(src, -src.sendingVolume());
         src.connectToDst(dst);
-        sendAdditionalVolume(src.dst(), src.sendingVolume());
+        sendAdditionalVolume(src, src.sendingVolume());
 
         return ConnectionResult.Successfull;
     }
@@ -63,20 +58,14 @@ public final class State extends Graph {
             return ConnectionResult.AlreadyConnected;
 
         // Check MAX_CONNECTIONS
-        int currentConnections = 0;
-        for (int id = 0; id < sensorsCount(); ++id) {
-            SensorNode sensor = sensorById(id);
-            if (sensor.isConnectedToDataCenter() && sensor.centerId() == dstCenterId)
-                ++currentConnections;
-        }
+        int currentConnections = centerById(dstCenterId).receivingSensorCount();
         if (currentConnections + 1 > Center.MAX_CONNECTIONS)
             return ConnectionResult.UnableToConnect;
 
         // ------- All checks passed -------
         // ------- Updateing State -------
 
-        if (!src.isConnectedToDataCenter())
-            sendAdditionalVolume(src.dst(), -src.sendingVolume());
+        sendAdditionalVolume(src, -src.sendingVolume());
         src.connectToCenterId(dstCenterId);
 
         return ConnectionResult.Successfull;
@@ -89,10 +78,10 @@ public final class State extends Graph {
      * @param volume The volume of data that we want to send.
      */
     private void sendAdditionalVolume(SensorNode node, int volume) {
-        node.setSendingVolume(node.sendingVolume() + volume);
-
-        if (!node.isConnectedToDataCenter())
-            sendAdditionalVolume(node.dst(), volume);
+        while(!node.isConnectedToDataCenter()) {
+            node = node.dst();
+            node.setSendingVolume(node.sendingVolume() + volume);
+        }
     }
 
     public static enum ConnectionResult {
