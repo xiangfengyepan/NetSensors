@@ -14,18 +14,18 @@ public final class ProblemParameters {
         HashSet<Long> occupied = new HashSet<>((nCenters + nSens) * 2);
 
         Random rand = new Random(centerSeed);
-        for (int i = 0; i < nCenters; ++i) {
+        for (int id = 0; id < nCenters; ++id) {
             int cx, cy;
             do {
                 cx = rand.nextInt(100);
                 cy = rand.nextInt(100);
             } while (!occupied.add((long) cx << 32 | cy));
 
-            centers[i] = new Center(cx, cy);
+            centers[id] = new Center(cx, cy, id);
         }
 
         rand = new Random(sensorSeed);
-        for (int i = 0; i < nSens; ++i) {
+        for (int id = 0; id < nSens; ++id) {
             int cx, cy;
             do {
                 cx = rand.nextInt(100);
@@ -33,10 +33,10 @@ public final class ProblemParameters {
             } while (!occupied.add((long) cx << 32 | cy));
 
             final int[] capacities = { 1, 2, 5 };
-            // int capacity = capacities[rand.nextInt(capacities.length)];
-            int capacity = capacities[i % 3];
+            // Alternative: int capacity = capacities[rand.nextInt(capacities.length)];
+            int capacity = capacities[id % 3];
 
-            sensors[i] = new Sensor(capacity, cx, cy);
+            sensors[id] = new Sensor(capacity, cx, cy, id);
         }
 
         for (Sensor sensor : sensors) {

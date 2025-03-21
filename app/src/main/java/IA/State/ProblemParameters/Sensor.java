@@ -5,21 +5,28 @@ import java.util.stream.IntStream;
 public final class Sensor extends Node {
     public final static int MAX_CONNECTIONS = 3;
 
+    public final int id;
     private final int maxCaptureVolume;
     private int[] nearestSensors;
     private int[] nearestCenters;
 
-    public Sensor(int maxCaptureVolume, int cx, int cy) {
+    public Sensor(int maxCaptureVolume, int cx, int cy, int id) {
         super(cx, cy, MAX_CONNECTIONS);
         this.maxCaptureVolume = maxCaptureVolume;
+        this.id = id;
     };
 
     public int maxCaptureVolume() {
         return maxCaptureVolume;
     }
 
+    @Override
+    public int maxReceivingVolume() {
+        return maxCaptureVolume * 2;
+    }
+
     public int maxTransmition() {
-        return this.maxCaptureVolume * 3;
+        return maxCaptureVolume * 3;
     }
 
     public int[] nearestSensors() {

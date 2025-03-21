@@ -24,8 +24,8 @@ public class Node {
 		this.state = state;
 		this.actionStateMap = new Hashtable();
 		this.depth = 0;
-		this.stepCost = new Double(0);
-		this.pathCost = new Double(0);
+		this.stepCost = Double.valueOf(0);
+		this.pathCost = Double.valueOf(0);
 	}
 
 	public Node(Node parent, Object state) {
@@ -77,7 +77,7 @@ public class Node {
 	}
 
 	public void addToPathCost(Double stepCost) {
-		this.pathCost = new Double(parent.pathCost.doubleValue()
+		this.pathCost = Double.valueOf(parent.pathCost.doubleValue()
 				+ stepCost.doubleValue());
 
 	}

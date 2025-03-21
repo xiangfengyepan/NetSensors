@@ -14,22 +14,23 @@ public class Test {
         // TODO
     }
 
-    public static void provaHC(boolean repeatSearch) {
+    public static void provaHC(int iterations) {
         int nCenters = 4;
         int nSens = 100;
-        int centerSeed = 1234;
-        int sensorSeed = 4321;
+        int centerSeed = 1234; // 0
+        int sensorSeed = 4321; // 1234
 
         State state = new State(nCenters, nSens, centerSeed, sensorSeed);
         double bestSolution = Double.POSITIVE_INFINITY;
+        State bestSolutionState = state;
 
-        do {
+        // Try out different SuccessorFunctions
+        SuccessorFunction operators = new StateSuccessors(state.problem());
+
+        double averageHeuristic = 0;
+        for (int i = 0; i < iterations; ++i) {
             InitialState.inilializeConnections(state);
 
-            // Try out different SuccessorFunctions
-            SuccessorFunction operators = new StateSuccessors();
-
-            // TODO: implement some other heuristics
             HeuristicFunction heuristic = new HeuristicCost();
 
             try {
@@ -39,17 +40,24 @@ public class Test {
                 // Print final state
                 State finalState = search.getEstatFinal();
                 double finalHeuristic = heuristic.getHeuristicValue(finalState);
+                averageHeuristic += finalHeuristic / iterations;
 
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
-                    search.getEstatFinal().print();
+                    // search.getEstatFinal().print();
+                    System.out.println("Cost: " + finalState.totalCost());
+                    System.out.println("Volume: " + finalState.totalVolume());
                     System.out.println("Best Score (To minimize): " + finalHeuristic);
                 }
 
             } catch (Exception e) {
                 System.err.println("Nothing happends: " + e.toString());
             }
-        } while (repeatSearch);
+        }
+
+        bestSolutionState.print();
+        System.out.println("Avg Score: " + averageHeuristic);
+        System.out.println("Best Score (To minimize): " + bestSolution);
     }
 
     public static void printInitialConnection() {

@@ -1,48 +1,29 @@
 package IA.State;
 
-import IA.State.Graph.SensorNode;
 import IA.State.ProblemParameters.Center;
 import IA.State.ProblemParameters.ProblemParameters;
 import IA.State.ProblemParameters.Sensor;
 
-public final class State {
-
-    private final Graph graph;
+public final class State extends Graph {
 
     public State(State state) {
-        graph = new Graph(state.graph);
+        super(state);
     }
 
     public State(int nCenters, int nSens, int centerSeed, int sensorSeed) {
-        graph = new Graph(nCenters, nSens, centerSeed, sensorSeed);
+        super(new ProblemParameters(nCenters, nSens, centerSeed, sensorSeed));
     }
 
-    public ProblemParameters problem() {
-        return graph.problem();
-    }
-
-    public int centersCount() {
-        return graph.centersCount();
-    }
-
-    public int sensorsCount() {
-        return graph.sensorsCount();
-    }
-
-    public int totalCost() {
-        return graph.totalCost();
-    }
-
-    public int totalVolume() {
-        return graph.totalVolume();
+    public State(ProblemParameters problem) {
+        super(problem);
     }
 
     public ConnectionResult connectToSensor(int srcSensorId, int dstSensorId) {
         if (srcSensorId == dstSensorId)
             return ConnectionResult.UnableToConnect;
 
-        SensorNode src = graph.sensorById(srcSensorId);
-        SensorNode dst = graph.sensorById(dstSensorId);
+        SensorNode src = sensorById(srcSensorId);
+        SensorNode dst = sensorById(dstSensorId);
 
         if (src.dstId() == dst.id())
             return ConnectionResult.AlreadyConnected;
@@ -56,46 +37,35 @@ public final class State {
         }
 
         // Check MAX_CONNECTIONS
-        int currentConnections = 0;
-        for (int id = 0; id < sensorsCount(); ++id) {
-            if (graph.sensorById(id).dstId() == dstSensorId)
-                ++currentConnections;
-        }
+        int currentConnections = dst.receivingSensorCount();
         if (currentConnections + 1 > Sensor.MAX_CONNECTIONS)
             return ConnectionResult.UnableToConnect;
 
         // ------- All checks passed -------
         // ------- Updateing State -------
 
-        if (!src.isConnectedToDataCenter())
-            sendAdditionalVolume(src.dst(), -src.sendingVolume());
+        sendAdditionalVolume(src, -src.sendingVolume());
         src.connectToDst(dst);
-        sendAdditionalVolume(src.dst(), src.sendingVolume());
+        sendAdditionalVolume(src, src.sendingVolume());
 
         return ConnectionResult.Successfull;
     }
 
     public ConnectionResult connectToCenter(int srcSensorId, int dstCenterId) {
-        SensorNode src = graph.sensorById(srcSensorId);
+        SensorNode src = sensorById(srcSensorId);
 
         if (src.isConnectedToDataCenter() && src.centerId() == dstCenterId)
             return ConnectionResult.AlreadyConnected;
 
         // Check MAX_CONNECTIONS
-        int currentConnections = 0;
-        for (int id = 0; id < sensorsCount(); ++id) {
-            SensorNode sensor = graph.sensorById(id);
-            if (sensor.isConnectedToDataCenter() && sensor.centerId() == dstCenterId)
-                ++currentConnections;
-        }
+        int currentConnections = centerById(dstCenterId).receivingSensorCount();
         if (currentConnections + 1 > Center.MAX_CONNECTIONS)
             return ConnectionResult.UnableToConnect;
 
         // ------- All checks passed -------
         // ------- Updateing State -------
 
-        if (!src.isConnectedToDataCenter())
-            sendAdditionalVolume(src.dst(), -src.sendingVolume());
+        sendAdditionalVolume(src, -src.sendingVolume());
         src.connectToCenterId(dstCenterId);
 
         return ConnectionResult.Successfull;
@@ -108,14 +78,10 @@ public final class State {
      * @param volume The volume of data that we want to send.
      */
     private void sendAdditionalVolume(SensorNode node, int volume) {
-        node.setSendingVolume(node.sendingVolume() + volume);
-
-        if (!node.isConnectedToDataCenter())
-            sendAdditionalVolume(node.dst(), volume);
-    }
-
-    public void print() {
-        graph.print();
+        while(!node.isConnectedToDataCenter()) {
+            node = node.dst();
+            node.setSendingVolume(node.sendingVolume() + volume);
+        }
     }
 
     public static enum ConnectionResult {

@@ -38,4 +38,6 @@ public abstract class Node {
     public int getMaxConnections() {
         return maxConnections;
     }
+
+    abstract public int maxReceivingVolume();
 }

@@ -19,7 +19,7 @@ public class Metrics {
 	}
 
 	public int getInt(String name) {
-		return new Integer((String) hash.get(name)).intValue();
+		return Integer.valueOf((String) hash.get(name)).intValue();
 	}
 
 	public void set(String name, Object value) {
