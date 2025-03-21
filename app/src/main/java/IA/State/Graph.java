@@ -228,7 +228,16 @@ public class Graph {
             System.out.println(" " + sensor + " -> " + dst);
         }
 
+        for (int centerId = 0; centerId < centersCount(); ++centerId) {
+            int currentConnections = centerReceivingSensorCount(centerId);
+
+            System.out.print(problem.center(centerId));
+            System.out.print(" volumne: " + centerVolume(centerId));
+            System.out.println(" connections: " + currentConnections);
+        }
+
         System.out.println("Cost: " + totalCost());
         System.out.println("Volumne: " + totalVolume() + " Mbits");
+
     }
 }
