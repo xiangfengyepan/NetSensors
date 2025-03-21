@@ -25,7 +25,7 @@ public class Test {
         State bestSolutionState = state;
 
         // Try out different SuccessorFunctions
-        SuccessorFunction operators = new StateSuccessors(state.problem());
+        SuccessorFunction operators = new StateSuccessors(state.problem);
 
         double averageHeuristic = 0;
         for (int i = 0; i < iterations; ++i) {
@@ -44,7 +44,9 @@ public class Test {
 
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
-                    // search.getEstatFinal().print();
+                    bestSolutionState = finalState;
+
+                    // finalState.print();
                     System.out.println("Cost: " + finalState.totalCost());
                     System.out.println("Volume: " + finalState.totalVolume());
                     System.out.println("Best Score (To minimize): " + finalHeuristic);

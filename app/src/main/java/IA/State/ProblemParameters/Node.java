@@ -1,30 +1,24 @@
 package IA.State.ProblemParameters;
 
 public abstract class Node {
-    private final int cx;
-    private final int cy;
-    private final int maxConnections;
+    public final int x;
+    public final int y;
+    public final int maxConnections;
+    public final int id;
 
-    public Node(int cx, int cy, int maxConnections) {
-        this.cx = cx;
-        this.cy = cy;
+    public Node(int cx, int cy, int maxConnections, int id) {
+        this.x = cx;
+        this.y = cy;
         this.maxConnections = maxConnections;
-    }
-
-    public int getCx() {
-        return cx;
-    }
-
-    public int getCy() {
-        return cy;
+        this.id = id;
     }
 
     /**
      * @return Squared distance to the other node
      */
     public int sqDistanceTo(Node node) {
-        int dx = cx - node.cx;
-        int dy = cy - node.cy;
+        int dx = x - node.x;
+        int dy = y - node.y;
         return dx * dx + dy * dy;
     }
 
@@ -33,10 +27,6 @@ public abstract class Node {
      */
     public double distanceTo(Node node) {
         return Math.sqrt(sqDistanceTo(node));
-    }
-
-    public int getMaxConnections() {
-        return maxConnections;
     }
 
     abstract public int maxReceivingVolume();

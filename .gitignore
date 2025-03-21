@@ -5,3 +5,4 @@ app/src/main/graphs
 # Ignore Gradle build output directory
 build
 app/bin
+*.swp

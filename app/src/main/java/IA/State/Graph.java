@@ -6,7 +6,7 @@ import IA.State.ProblemParameters.ProblemParameters;
 import IA.State.ProblemParameters.Sensor;
 
 public class Graph {
-    private final ProblemParameters problem;
+    public final ProblemParameters problem;
 
     private final short[] sensorsDst;
     private final short[] sensorsSendingVolume;
@@ -61,10 +61,6 @@ public class Graph {
         totalCost = graph.totalCost;
     }
 
-    public ProblemParameters problem() {
-        return problem;
-    }
-
     public int sensorsCount() {
         return sensorsDst.length;
     }
@@ -84,188 +80,152 @@ public class Graph {
         return totalVolume;
     }
 
-    public SensorNode sensorById(int nodeId) {
-        return new SensorNode(nodeId);
+    // public SensorNode sensorById(int nodeId) {
+    // return new SensorNode(nodeId);
+    // }
+
+    // public CenterNode centerById(int centerId) {
+    // return new CenterNode(centerId);
+    // }
+
+    // public final class SensorNode {
+    // private final int id;
+
+    // private SensorNode(int id) {
+    // assert 0 <= id && id < sensorsDst.length;
+    // this.id = id;
+    // }
+
+    // public int id() {
+    // return id;
+    // }
+
+    public int connectionSqDistance(int sensorId) {
+        if (isConnectedToDataCenter(sensorId))
+            return sensor(sensorId).sqDistanceTo(problem.center(centerId(sensorId)));
+        else
+            return sensor(sensorId).sqDistanceTo(problem.sensor(dstId(sensorId)));
     }
 
-    public CenterNode centerById(int centerId) {
-        return new CenterNode(centerId);
+    public Node dstNode(int sensorId) {
+        if (isConnectedToDataCenter(sensorId))
+            return problem.center(centerId(sensorId));
+        else
+            return problem.sensor(dstId(sensorId));
     }
 
-    public final class SensorNode {
-        private final int id;
-
-        private SensorNode(int id) {
-            assert 0 <= id && id < sensorsDst.length;
-            this.id = id;
-        }
-
-        public int id() {
-            return id;
-        }
-
-        public int connectionSqDistance() {
-            if (isConnectedToDataCenter())
-                return sensor().sqDistanceTo(center().center());
-            else
-                return sensor().sqDistanceTo(dst().sensor());
-        }
-
-        public Node dstNode() {
-            if (isConnectedToDataCenter())
-                return problem.center(centerId());
-            else
-                return problem.sensor(dstId());
-        }
-
-        public int receivingSensorCount() {
-            return receivingSensorCount[id + centersCount()];
-        }
-
-        public int connectionCost() {
-            return connectionSqDistance() * limitedSendingVolume();
-        }
-
-        public Sensor sensor() {
-            return problem.sensor(id);
-        }
-
-        /**
-         * @return true if it's connected directly to a center
-         */
-        public boolean isConnectedToDataCenter() {
-            return sensorsDst[id] < 0;
-        }
-
-        public int dstId() {
-            return sensorsDst[id];
-        }
-
-        public SensorNode dst() {
-            return new SensorNode(sensorsDst[id]);
-        }
-
-        public int centerId() {
-            return -1 - sensorsDst[id];
-        }
-
-        public CenterNode center() {
-            return new CenterNode(-1 - sensorsDst[id]);
-        }
-
-        public int sendingVolume() {
-            return sensorsSendingVolume[id];
-        }
-
-        public int limitedSendingVolume() {
-            return Math.min(sendingVolume(), sensor().maxTransmition());
-        }
-
-        public void setSendingVolume(int amount) {
-            if (isConnectedToDataCenter())
-                center().setVolume(center().volume() - limitedSendingVolume());
-            totalCost -= connectionCost();
-
-            sensorsSendingVolume[id] = (short) amount;
-
-            if (isConnectedToDataCenter())
-                center().setVolume(center().volume() + limitedSendingVolume());
-            totalCost += connectionCost();
-        }
-
-        public void connectToDst(SensorNode node) {
-            if (isConnectedToDataCenter()){
-                center().setVolume(center().volume() - limitedSendingVolume());
-                receivingSensorCount[centerId()] -= 1;
-            } else
-                receivingSensorCount[dstId() + centersCount()] -= 1;
-            totalCost -= connectionCost();
-
-            sensorsDst[id] = (short) node.id;
-
-            if (isConnectedToDataCenter()){
-                center().setVolume(center().volume() + limitedSendingVolume());
-                receivingSensorCount[centerId()] += 1;
-            } else
-                receivingSensorCount[dstId() + centersCount()] += 1;
-            totalCost += connectionCost();
-        }
-
-        public void connectToCenterId(int centerId) {
-            if (isConnectedToDataCenter()) {
-                center().setVolume(center().volume() - limitedSendingVolume());
-                receivingSensorCount[centerId()] -= 1;
-            } else
-                receivingSensorCount[dstId() + centersCount()] -= 1;
-            totalCost -= connectionCost();
-
-            sensorsDst[id] = (short) (-centerId - 1);
-
-            if (isConnectedToDataCenter()) {
-                center().setVolume(center().volume() + limitedSendingVolume());
-                receivingSensorCount[centerId()] += 1;
-            } else
-                receivingSensorCount[dstId() + centersCount()] += 1;
-            totalCost += connectionCost();
-        }
+    public int receivingSensorCount(int sensorId) {
+        return receivingSensorCount[sensorId + centersCount()];
     }
 
-    public final class CenterNode {
-        private final int id;
-
-        private CenterNode(int id) {
-            assert 0 <= id && id < centersCount();
-            this.id = id;
-        }
-
-        public int id() {
-            return id;
-        }
-        
-        public int receivingSensorCount() {
-            return receivingSensorCount[id];
-        }
-
-        public Center center() {
-            return problem.center(id);
-        }
-
-        public int volume() {
-            return centersVolume[id];
-        }
-
-        private void setVolume(int volume) {
-            centersVolume[id] = (short) volume;
-        }
+    public int connectionCost(int sensorId) {
+        return connectionSqDistance(sensorId) * limitedSendingVolume(sensorId);
     }
 
-    private void assertReceivingSensorCount() {
-        for (int i = 0; i < problem.centersCount(); ++i) {
-            int x = centerById(i).receivingSensorCount();
-            int y = receivingSensorCount[i];
-            assert x == y;
-        }
+    public Sensor sensor(int sensorId) {
+        return problem.sensor(sensorId);
     }
 
+    /**
+     * @return true if it's connected directly to a center
+     */
+    public boolean isConnectedToDataCenter(int sensorId) {
+        return sensorsDst[sensorId] < 0;
+    }
+
+    public int dstId(int sensorId) {
+        return sensorsDst[sensorId];
+    }
+
+    public int centerId(int sensorId) {
+        return -1 - sensorsDst[sensorId];
+    }
+
+    public int sendingVolume(int sensorId) {
+        return sensorsSendingVolume[sensorId];
+    }
+
+    public int limitedSendingVolume(int sensorId) {
+        return Math.min(sendingVolume(sensorId), problem.sensor(sensorId).maxTransmition());
+    }
+
+    public void setSendingVolume(int sensorId, int amount) {
+        if (isConnectedToDataCenter(sensorId))
+            setCenterVolume(centerId(sensorId), centerVolume(centerId(sensorId)) - limitedSendingVolume(sensorId));
+        totalCost -= connectionCost(sensorId);
+
+        sensorsSendingVolume[sensorId] = (short) amount;
+
+        if (isConnectedToDataCenter(sensorId))
+            setCenterVolume(centerId(sensorId), centerVolume(centerId(sensorId)) + limitedSendingVolume(sensorId));
+        totalCost += connectionCost(sensorId);
+    }
+
+    protected void connectToSensorId(int sensorId, int sensorDstId) {
+        if (isConnectedToDataCenter(sensorId)) {
+            setCenterVolume(centerId(sensorId), centerVolume(centerId(sensorId)) - limitedSendingVolume(sensorId));
+            receivingSensorCount[centerId(sensorId)] -= 1;
+        } else
+            receivingSensorCount[dstId(sensorId) + centersCount()] -= 1;
+        totalCost -= connectionCost(sensorId);
+
+        sensorsDst[sensorId] = (short) sensorDstId;
+
+        if (isConnectedToDataCenter(sensorId)) {
+            setCenterVolume(centerId(sensorId), centerVolume(centerId(sensorId)) + limitedSendingVolume(sensorId));
+            receivingSensorCount[centerId(sensorId)] += 1;
+        } else
+            receivingSensorCount[dstId(sensorId) + centersCount()] += 1;
+        totalCost += connectionCost(sensorId);
+    }
+
+    protected void connectToCenterId(int sensorId, int centerId) {
+        if (isConnectedToDataCenter(sensorId)) {
+            setCenterVolume(centerId(sensorId), centerVolume(centerId(sensorId)) - limitedSendingVolume(sensorId));
+            receivingSensorCount[centerId(sensorId)] -= 1;
+        } else
+            receivingSensorCount[dstId(sensorId) + centersCount()] -= 1;
+        totalCost -= connectionCost(sensorId);
+
+        sensorsDst[sensorId] = (short) (-centerId - 1);
+
+        if (isConnectedToDataCenter(sensorId)) {
+            setCenterVolume(centerId(sensorId), centerVolume(centerId(sensorId)) + limitedSendingVolume(sensorId));
+            receivingSensorCount[centerId(sensorId)] += 1;
+        } else
+            receivingSensorCount[dstId(sensorId) + centersCount()] += 1;
+        totalCost += connectionCost(sensorId);
+    }
+
+    public int centerReceivingSensorCount(int centerId) {
+        return receivingSensorCount[centerId];
+    }
+
+    public int centerVolume(int centerId) {
+        return centersVolume[centerId];
+    }
+
+    private void setCenterVolume(int centerId, int volume) {
+        centersVolume[centerId] = (short) volume;
+    }
 
     public void print() {
         problem.print();
 
         for (int sensorId = 0; sensorId < sensorsCount(); ++sensorId) {
-            SensorNode node = sensorById(sensorId);
-            Sensor src = node.sensor();
             Node dst;
+            Sensor sensor = problem.sensor(sensorId);
 
-            if (node.isConnectedToDataCenter())
-                dst = node.center().center();
+            if (isConnectedToDataCenter(sensorId))
+                dst = problem.center(centerId(sensorId));
             else
-                dst = node.dst().sensor();
+                dst = problem.sensor(dstId(sensorId));
 
-            System.out.printf("Edge: distance: %.2f", src.distanceTo(dst));
-            System.out.print(" transmition: " + node.limitedSendingVolume());
-            System.out.print(" cost: " + node.connectionCost());
+            System.out.printf("Edge: distance: %.2f", sensor.distanceTo(dst));
+            System.out.print(" transmition: " + limitedSendingVolume(sensorId));
+            System.out.print(" cost: " + connectionCost(sensorId));
             System.out.print("\t\t");
-            System.out.println(" " + src + " -> " + dst);
+            System.out.println(" " + sensor + " -> " + dst);
         }
 
         System.out.println("Cost: " + totalCost());

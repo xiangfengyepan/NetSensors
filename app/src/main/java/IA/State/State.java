@@ -22,51 +22,46 @@ public final class State extends Graph {
         if (srcSensorId == dstSensorId)
             return ConnectionResult.UnableToConnect;
 
-        SensorNode src = sensorById(srcSensorId);
-        SensorNode dst = sensorById(dstSensorId);
-
-        if (src.dstId() == dst.id())
+        if (dstId(srcSensorId) == dstSensorId)
             return ConnectionResult.AlreadyConnected;
 
         // Check if it creates a cycle
-        SensorNode node = dst;
-        while (!node.isConnectedToDataCenter()) {
-            node = node.dst();
-            if (node.id() == srcSensorId)
+        int node = dstSensorId;
+        while (!isConnectedToDataCenter(node)) {
+            node = dstId(node);
+            if (node == srcSensorId)
                 return ConnectionResult.UnableToConnect;
         }
 
         // Check MAX_CONNECTIONS
-        int currentConnections = dst.receivingSensorCount();
+        int currentConnections = receivingSensorCount(dstSensorId);
         if (currentConnections + 1 > Sensor.MAX_CONNECTIONS)
             return ConnectionResult.UnableToConnect;
 
         // ------- All checks passed -------
         // ------- Updateing State -------
 
-        sendAdditionalVolume(src, -src.sendingVolume());
-        src.connectToDst(dst);
-        sendAdditionalVolume(src, src.sendingVolume());
+        sendAdditionalVolume(srcSensorId, -sendingVolume(srcSensorId));
+        connectToSensorId(srcSensorId, dstSensorId);
+        sendAdditionalVolume(srcSensorId, sendingVolume(srcSensorId));
 
         return ConnectionResult.Successfull;
     }
 
     public ConnectionResult connectToCenter(int srcSensorId, int dstCenterId) {
-        SensorNode src = sensorById(srcSensorId);
-
-        if (src.isConnectedToDataCenter() && src.centerId() == dstCenterId)
+        if (isConnectedToDataCenter(srcSensorId) && centerId(srcSensorId) == dstCenterId)
             return ConnectionResult.AlreadyConnected;
 
         // Check MAX_CONNECTIONS
-        int currentConnections = centerById(dstCenterId).receivingSensorCount();
+        int currentConnections = centerReceivingSensorCount(dstCenterId);
         if (currentConnections + 1 > Center.MAX_CONNECTIONS)
             return ConnectionResult.UnableToConnect;
 
         // ------- All checks passed -------
         // ------- Updateing State -------
 
-        sendAdditionalVolume(src, -src.sendingVolume());
-        src.connectToCenterId(dstCenterId);
+        sendAdditionalVolume(srcSensorId, -sendingVolume(srcSensorId));
+        connectToCenterId(srcSensorId, dstCenterId);
 
         return ConnectionResult.Successfull;
     }
@@ -77,10 +72,10 @@ public final class State extends Graph {
      * @param node   The node where the data is sended from
      * @param volume The volume of data that we want to send.
      */
-    private void sendAdditionalVolume(SensorNode node, int volume) {
-        while(!node.isConnectedToDataCenter()) {
-            node = node.dst();
-            node.setSendingVolume(node.sendingVolume() + volume);
+    private void sendAdditionalVolume(int sensorId, int volume) {
+        while (!isConnectedToDataCenter(sensorId)) {
+            sensorId = dstId(sensorId);
+            setSendingVolume(sensorId, sendingVolume(sensorId) + volume);
         }
     }
 

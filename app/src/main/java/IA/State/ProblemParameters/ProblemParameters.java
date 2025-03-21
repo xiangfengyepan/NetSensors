@@ -3,7 +3,7 @@ package IA.State.ProblemParameters;
 import java.util.HashSet;
 import java.util.Random;
 
-public final class ProblemParameters {
+public class ProblemParameters {
     private final Sensor[] sensors;
     private final Center[] centers;
 

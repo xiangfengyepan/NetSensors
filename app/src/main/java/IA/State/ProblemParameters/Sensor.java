@@ -5,15 +5,13 @@ import java.util.stream.IntStream;
 public final class Sensor extends Node {
     public final static int MAX_CONNECTIONS = 3;
 
-    public final int id;
     private final int maxCaptureVolume;
     private int[] nearestSensors;
     private int[] nearestCenters;
 
-    public Sensor(int maxCaptureVolume, int cx, int cy, int id) {
-        super(cx, cy, MAX_CONNECTIONS);
+    public Sensor(int maxCaptureVolume, int x, int y, int id) {
+        super(x, y, MAX_CONNECTIONS, id);
         this.maxCaptureVolume = maxCaptureVolume;
-        this.id = id;
     };
 
     public int maxCaptureVolume() {
@@ -39,7 +37,7 @@ public final class Sensor extends Node {
 
     public void updateNearesSensors(Sensor[] allSensors) {
         nearestSensors = IntStream.range(0, allSensors.length)
-                .filter(id -> allSensors[id].getCx() != getCx() || allSensors[id].getCy() != getCy())
+                .filter(id -> allSensors[id].x != x || allSensors[id].y != y)
                 .boxed()
                 .sorted((a, b) -> Integer.compare(sqDistanceTo(allSensors[a]), sqDistanceTo(allSensors[b])))
                 .mapToInt(id -> id).toArray();
@@ -54,6 +52,6 @@ public final class Sensor extends Node {
 
     @Override
     public String toString() {
-        return String.format("sensor(x=%02d, y=%02d, capacity=%02d)", getCx(), getCy(), maxCaptureVolume);
+        return String.format("sensor(x=%02d, y=%02d, capacity=%02d)", x, y, maxCaptureVolume);
     }
 }

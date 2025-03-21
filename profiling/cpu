@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+restrict="$(sysctl -n kernel.kptr_restrict)"
+if [ "$restrict" != "0" ]; then
+  sudo sysctl kernel.perf_event_paranoid=1
+  sudo sysctl kernel.kptr_restrict=0
+fi
+
+./gradlew build
+java -XX:+EnableDynamicAgentLoading -jar app/build/libs/app.jar &
+java_pid=$!
+
+sleep 1
+./profiling/async-profiler-3.0-linux-x64/bin/asprof -d 20 -e cpu -f ./profiling/out/cpu.html "$java_pid"
+kill "$java_pid"
+
+if command -v cmd.exe; then
+  cmd.exe /c 'start ./profiling/out/cpu.html'
+else
+  xdg-open ./profiling/out/cpu.html
+fi

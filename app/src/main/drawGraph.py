@@ -91,7 +91,7 @@ def draw_graph(G, total_cost, total_volume, output_path):
 
     # Edge labels (cost + distance + transmission)
     edge_labels = {(u, v): f"C:{d['cost']}, D:{d['distance']:.2f}, T:{d['transmition']}" for u, v, d in G.edges(data=True)}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=NODE_TEXT_FONT_SIZE)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=NODE_TEXT_FONT_SIZE, bbox=dict(alpha=0))
 
     plt.title("Graph of Sensors and Transmission Centers")
 
@@ -100,7 +100,7 @@ def draw_graph(G, total_cost, total_volume, output_path):
     plt.figtext(0.01, 0.03, f"Total Volume: {total_volume} Mbits", fontsize=TOTAL_TEXT_FONT_SIZE, ha="left")
 
     # Save image
-    plt.savefig(output_path)
+    plt.savefig(output_path, dpi=256)
     plt.close()
     print(f"Graph saved in '{output_path}'")
 
@@ -132,7 +132,7 @@ for input_file in input_files:
             index = number
 
         file_path = os.path.join(in_file_path_dir, input_file)
-        output_path = os.path.join(out_file_path_dir, f"graph{index}.pdf")
+        output_path = os.path.join(out_file_path_dir, f"graph{index}.jpg")
 
         # Build the graph and generate the image
         graph, total_cost, total_volume = build_graph_from_file(file_path)

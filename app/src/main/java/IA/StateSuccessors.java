@@ -68,6 +68,10 @@ public final class StateSuccessors implements SuccessorFunction {
     void exaustiveConnections(State state) {
         for (int src = 0; src < state.sensorsCount(); ++src) {
             Sensor sensorSrc = problem.sensor(src);
+            Sensor previousDst = null;
+            if (!state.isConnectedToDataCenter(src))
+                previousDst = problem.sensor(state.dstId(src));
+
             int[] nearestCenters = sensorSrc.nearestCenters();
             int[] nearestSensors = sensorSrc.nearestSensors();
 
@@ -77,11 +81,10 @@ public final class StateSuccessors implements SuccessorFunction {
                 State newState = newState(state);
                 if (newState.connectToCenter(src, centerDst) == ConnectionResult.Successfull) {
                     addSuccessor(newState, "connectCenter");
-                    connectChain(newState, sensorSrc, problem.center(centerDst), 80 - i * 20, 1);
+                    connectChain(newState, sensorSrc, problem.center(centerDst), 80 - i * 20);
 
-                    if (!state.sensorById(src).isConnectedToDataCenter()) {
-                        Sensor previousDst = state.sensorById(src).dst().sensor();
-                        connectReplaceing(newState, sensorSrc, previousDst, 50, 1);
+                    if (previousDst != null) {
+                        connectReplaceing(newState, sensorSrc, previousDst, 50);
                     }
                 }
                 reuseState(newState);
@@ -93,11 +96,10 @@ public final class StateSuccessors implements SuccessorFunction {
                 State newState = newState(state);
                 if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
                     addSuccessor(newState, "connectSensors");
-                    connectChain(newState, sensorSrc, problem.sensor(dst), 80 - i, 1);
+                    connectChain(newState, sensorSrc, problem.sensor(dst), 80 - i);
 
-                    if (!state.sensorById(src).isConnectedToDataCenter()) {
-                        Sensor previousDst = state.sensorById(src).dst().sensor();
-                        connectReplaceing(newState, sensorSrc, previousDst, 50, 1);
+                    if (previousDst != null) {
+                        connectReplaceing(newState, sensorSrc, previousDst, 50);
                     }
                 }
                 reuseState(newState);
@@ -106,10 +108,7 @@ public final class StateSuccessors implements SuccessorFunction {
         }
     }
 
-    void connectChain(State state, Sensor chainSrc, Node chainDst, int connectToNearestN, int depth) {
-        if (depth <= 0)
-            return;
-
+    void connectChain(State state, Sensor chainSrc, Node chainDst, int connectToNearestN) {
         int dst = chainSrc.id;
         int[] nearestSensors = problem.sensor(dst).nearestSensors();
 
@@ -119,7 +118,7 @@ public final class StateSuccessors implements SuccessorFunction {
             Sensor sensorSrc = problem.sensor(src);
 
             // This connection won't introduce immediate losses
-            int available = chainSrc.maxReceivingVolume() - state.sensorById(dst).sendingVolume();
+            int available = chainSrc.maxReceivingVolume() - state.sendingVolume(dst);
             if (available < sensorSrc.maxCaptureVolume())
                 continue;
 
@@ -129,17 +128,16 @@ public final class StateSuccessors implements SuccessorFunction {
             State newState = newState(state);
             if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
                 addSuccessor(newState, "chain");
-                connectChain(newState, sensorSrc, chainDst, connectToNearestN / 2 - i, depth - 1);
+
+                // Idea: recursive chain
+                // connectChain(newState, sensorSrc, chainDst, connectToNearestN / 2 - i);
             }
             reuseState(newState);
         }
     }
 
     void connectReplaceing(State state, Sensor previousSensorSrc, Sensor sensorDst,
-            int connectToNearestN, int depth) {
-        if (depth <= 0)
-            return;
-
+            int connectToNearestN) {
         int dst = sensorDst.id;
         int[] nearestSensors = problem.sensor(dst).nearestSensors();
 
@@ -150,12 +148,12 @@ public final class StateSuccessors implements SuccessorFunction {
 
             // Previously, the connection was close to saturated.
             int pastAvailable = sensorDst.maxReceivingVolume() -
-                    state.sensorById(previousSensorSrc.id).sendingVolume();
+                    state.sendingVolume(previousSensorSrc.id);
             if (pastAvailable >= sensorSrc.maxCaptureVolume())
                 continue;
 
             // This connection won't introduce immediate losses
-            int available = sensorDst.maxReceivingVolume() - state.sensorById(dst).sendingVolume();
+            int available = sensorDst.maxReceivingVolume() - state.sendingVolume(dst);
             if (available < sensorSrc.maxCaptureVolume())
                 continue;
 
@@ -163,11 +161,13 @@ public final class StateSuccessors implements SuccessorFunction {
             if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
                 addSuccessor(newState, "replace");
 
-                if (!state.sensorById(sensorSrc.id).isConnectedToDataCenter()) {
-                    Sensor previousSensorDst = state.sensorById(sensorSrc.id).dst().sensor();
-                    connectReplaceing(newState, sensorSrc, previousSensorDst, 40, depth
-                            - 1);
-                }
+                // Idea: recursive connect replace
+                //
+                // if (!state.isConnectedToDataCenter(sensorSrc.id)) {
+                // Sensor previousSensorDst = problem.sensor(state.dstId(sensorSrc.id));
+                // connectReplaceing(newState, sensorSrc, previousSensorDst, 40, depth
+                // - 1);
+                // }
             }
             reuseState(newState);
         }

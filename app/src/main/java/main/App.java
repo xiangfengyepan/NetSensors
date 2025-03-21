@@ -11,7 +11,7 @@ public class App {
         // Test.printStateFromFiles();
         // Test.printStateFromFile(1);
 
-        Test.provaHC(10000);
+        Test.provaHC(1);
     }
 
 }
