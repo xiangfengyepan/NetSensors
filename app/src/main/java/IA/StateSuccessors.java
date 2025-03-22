@@ -117,11 +117,6 @@ public final class StateSuccessors implements SuccessorFunction {
             int src = nearestSensors[i];
             Sensor sensorSrc = problem.sensor(src);
 
-            // This connection won't introduce immediate losses
-            int available = chainSrc.maxReceivingVolume() - state.sendingVolume(dst);
-            if (available < sensorSrc.maxCaptureVolume())
-                continue;
-
             if (!chainCondition(sensorSrc, chainSrc, chainDst))
                 continue;
 
@@ -130,7 +125,7 @@ public final class StateSuccessors implements SuccessorFunction {
                 addSuccessor(newState, "chain");
 
                 // Idea: recursive chain
-                // connectChain(newState, sensorSrc, chainDst, connectToNearestN / 2 - i);
+                //connectChain(newState, sensorSrc, chainDst, connectToNearestN / 2 - i);
             }
             reuseState(newState);
         }
@@ -150,11 +145,6 @@ public final class StateSuccessors implements SuccessorFunction {
             int pastAvailable = sensorDst.maxReceivingVolume() -
                     state.sendingVolume(previousSensorSrc.id);
             if (pastAvailable >= sensorSrc.maxCaptureVolume())
-                continue;
-
-            // This connection won't introduce immediate losses
-            int available = sensorDst.maxReceivingVolume() - state.sendingVolume(dst);
-            if (available < sensorSrc.maxCaptureVolume())
                 continue;
 
             State newState = newState(state);
