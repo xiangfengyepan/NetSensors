@@ -8,7 +8,7 @@ import IA.State.ProblemParameters.Sensor;
 
 public final class InitialState {
     private static final int PROB_CONNECT_CENTER = 80;
-    private static final double SENSORS_DEGREE = 4.; // See Function: \operatorname{round}\left(n\cdot x^{g}\right)
+    private static final double SENSORS_DEGREE = 4.;
     private static final Random random = new Random(469874635498745L);
 
     public static void inilializeConnections(State state) {
@@ -34,6 +34,7 @@ public final class InitialState {
                 int n = src.nearestSensors().length / 2;
 
                 do {
+                    // See Function in [desmos.com]: \operatorname{round}\left(n\cdot x^{g}\right)
                     index = (int) Math.round(n * Math.pow(random.nextDouble(), SENSORS_DEGREE));
                 } while (state.connectToSensor(srcId,
                         src.nearestSensors()[index]) == ConnectionResult.UnableToConnect);
