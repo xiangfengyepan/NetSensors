@@ -1,7 +1,7 @@
 # Ignore Gradle project-specific cache directory
 .gradle
-app/src/main/outputs
-app/src/main/graphs
+# app/src/main/outputs
+# app/src/main/graphs
 # Ignore Gradle build output directory
 build
 app/bin
