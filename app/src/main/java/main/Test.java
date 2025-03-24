@@ -27,6 +27,7 @@ public class Test {
         SuccessorFunction operators = new StateSuccessors(state.problem);
 
         double averageHeuristic = 0;
+        double averageTime = 0;
         for (int i = 0; i < iterations; ++i) {
             InitialState.inilializeConnections(state);
 
@@ -35,6 +36,8 @@ public class Test {
             try {
                 SolutionSearch search = new SolutionSearch(state, operators, heuristic);
                 search.executeSearch();
+                System.out.println(search.getProperties());
+                averageTime += search.getTime()/iterations;
 
                 // Print final state
                 State finalState = search.getEstatFinal();
@@ -56,8 +59,10 @@ public class Test {
             }
         }
 
-        bestSolutionState.print();
+        // bestSolutionState.print();
         System.out.println("Avg Score: " + averageHeuristic);
+        System.out.println("Avg Time: " + averageTime + " ms");
+
         System.out.println("Best Score (To minimize): " + bestSolution);
     }
 
