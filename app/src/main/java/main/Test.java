@@ -28,6 +28,8 @@ public class Test {
 
         double averageHeuristic = 0;
         double averageTime = 0;
+        double averageExpandNode = 0;
+
         for (int i = 0; i < iterations; ++i) {
             InitialState.inilializeConnections(state);
 
@@ -38,6 +40,8 @@ public class Test {
                 search.executeSearch();
                 System.out.println(search.getProperties());
                 averageTime += search.getTime()/iterations;
+                averageExpandNode += Integer.valueOf(search.getNodesexp()) / iterations;
+
 
                 // Print final state
                 State finalState = search.getEstatFinal();
@@ -62,6 +66,8 @@ public class Test {
         // bestSolutionState.print();
         System.out.println("Avg Score: " + averageHeuristic);
         System.out.println("Avg Time: " + averageTime + " ms");
+        System.out.println("Avg Expanded Node: " + averageExpandNode);
+
 
         System.out.println("Best Score (To minimize): " + bestSolution);
     }
