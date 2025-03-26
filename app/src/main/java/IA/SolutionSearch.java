@@ -35,9 +35,9 @@ public class SolutionSearch {
     }
 
     public SolutionSearch(State state, SuccessorFunction operators, HeuristicFunction heuristic, int iteration,
-            int stepIteration, int k, double lambda) {
+            int stopIteration, int k, double lambda) {
         problem = new Problem(state, operators, new FinalState(), heuristic);
-        search = new SimulatedAnnealingSearch(iteration, stepIteration, k, lambda);
+        search = new SimulatedAnnealingSearch(iteration, stopIteration, k, lambda);
     }
 
     public void executeSearch() {
@@ -56,8 +56,6 @@ public class SolutionSearch {
             b.setTime(d2);
 
             time = b.getTimeInMillis() - a.getTimeInMillis();
-
-            System.out.println(time + " ms");
 
             // THIS are extra
             setInstrumentation(agent.getInstrumentation());
@@ -87,6 +85,10 @@ public class SolutionSearch {
 
     public String getProperties() {
         return properties;
+    }
+
+    public long getTime() {
+        return time;
     }
 
     private void setAccions(List<String> actionList) {
