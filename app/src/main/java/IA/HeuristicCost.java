@@ -10,6 +10,6 @@ public class HeuristicCost implements HeuristicFunction {
 		double volume = state.totalVolume();
 
 		// Surprisingly, multiplying 4 times is significantly faster than Math.pow(_, 4)
-		return 1e6 * cost / (volume * volume * volume * volume);
+		return cost / (volume * volume);
 	}
 }
