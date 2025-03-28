@@ -1,6 +1,7 @@
 package main;
 
 import IA.StateSuccessors;
+import IA.StateSuccessorsSA;
 
 import java.util.Random;
 
@@ -35,6 +36,9 @@ public class Test {
 
             HeuristicFunction heuristic = new HeuristicCost();
 
+            double inicialHeuristic = heuristic.getHeuristicValue(state);
+            System.out.println("Inicial heuristic (To minimize): " + inicialHeuristic);
+
             try {
                 SolutionSearch search = new SolutionSearch(state, operators, heuristic);
                 search.executeSearch();
@@ -42,21 +46,23 @@ public class Test {
                 averageTime += search.getTime()/iterations;
                 averageExpandNode += Integer.valueOf(search.getNodesexp()) / iterations;
 
-
                 // Print final state
                 State finalState = search.getEstatFinal();
                 double finalHeuristic = heuristic.getHeuristicValue(finalState);
                 averageHeuristic += finalHeuristic / iterations;
+
+                System.out.println("Cost: " + finalState.totalCost());
+                System.out.println("Volume: " + finalState.totalVolume());
 
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
                     bestSolutionState = finalState;
 
                     // finalState.print();
-                    System.out.println("Cost: " + finalState.totalCost());
-                    System.out.println("Volume: " + finalState.totalVolume());
                     System.out.println("Best Score (To minimize): " + finalHeuristic);
                 }
+                System.out.println("\n---------------------------------------------");
+
 
             } catch (Exception e) {
                 System.err.println("Nothing happends: " + e.toString());
@@ -68,11 +74,11 @@ public class Test {
         System.out.println("Avg Time: " + averageTime + " ms");
         System.out.println("Avg Expanded Node: " + averageExpandNode);
 
-
         System.out.println("Best Score (To minimize): " + bestSolution);
+        System.out.println("Best Cost: " + bestSolutionState.totalCost());
+        System.out.println("Best Volume: " + bestSolutionState.totalVolume());
     }
 
-    
     public static void provaSA(int iterations) {
         int nCenters = 4;
         int nSens = 100;
@@ -84,50 +90,61 @@ public class Test {
         State bestSolutionState = state;
 
         // Try out different SuccessorFunctions
-        SuccessorFunction operators = new StateSuccessors(state.problem);
+        SuccessorFunction operators = new StateSuccessorsSA(state.problem);
 
         // TODO change parameters
-        int iterationSA = 1000;
-        int stopIteration = 1;
-        int k = 1;
-        double lambda = 0.005;
-        // for i in iterationSA
-        // if (temp < stopIteration) temp = k
-        // else temp = k*e^(-lambda*t)  
+        int iterationSA = 20000;
+        int stepIteration = 200; // baixar la tempratura despres de step iterations 
+        int k = 20; // factor per temperatura [0-20]
+        double lambda = 0.005; // factor de refrigeri en cada step [0.005-0.05]
 
         double averageHeuristic = 0;
+        double averageTime = 0;
+        double averageExpandNode = 0;
         for (int i = 0; i < iterations; ++i) {
             InitialState.inilializeConnections(state);
-
             HeuristicFunction heuristic = new HeuristicCost();
 
+            double inicialHeuristic = heuristic.getHeuristicValue(state);
+            System.out.println("Inicial heuristic (To minimize): " + inicialHeuristic);
+
             try {
-                SolutionSearch search = new SolutionSearch(state, operators, heuristic, iterationSA, stopIteration, k, lambda);
+                SolutionSearch search = new SolutionSearch(state, operators, heuristic, iterationSA, stepIteration, k, lambda);
                 search.executeSearch();
+                System.out.println(search.getProperties());
+                averageTime += search.getTime()/iterations;
+                averageExpandNode += Integer.valueOf(search.getNodesexp()) / iterations;
 
                 // Print final state
                 State finalState = search.getEstatFinal();
                 double finalHeuristic = heuristic.getHeuristicValue(finalState);
                 averageHeuristic += finalHeuristic / iterations;
 
+                System.out.println("Cost: " + finalState.totalCost());
+                System.out.println("Volume: " + finalState.totalVolume());
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
                     bestSolutionState = finalState;
 
                     // finalState.print();
-                    System.out.println("Cost: " + finalState.totalCost());
-                    System.out.println("Volume: " + finalState.totalVolume());
                     System.out.println("Best Score (To minimize): " + finalHeuristic);
                 }
+                System.out.println("\n---------------------------------------------");
+
 
             } catch (Exception e) {
                 System.err.println("Nothing happends: " + e.toString());
             }
         }
 
-        bestSolutionState.print();
+        // bestSolutionState.print();
         System.out.println("Avg Score: " + averageHeuristic);
+        System.out.println("Avg Time: " + averageTime + " ms");
+        System.out.println("Avg Expanded Node: " + averageExpandNode);
+
         System.out.println("Best Score (To minimize): " + bestSolution);
+        System.out.println("Best Cost: " + bestSolutionState.totalCost());
+        System.out.println("Best Volume: " + bestSolutionState.totalVolume());
     }
 
     public static void printInitialConnection() {
