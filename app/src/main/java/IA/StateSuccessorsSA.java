@@ -10,8 +10,9 @@ import IA.State.ProblemParameters.Node;
 import IA.State.ProblemParameters.ProblemParameters;
 import IA.State.ProblemParameters.Sensor;
 import aima.search.framework.Successor;
+import aima.search.framework.SuccessorFunction;
 
-public class StateSuccessorsSA {
+public class StateSuccessorsSA implements SuccessorFunction {
     private final ProblemParameters problem;
 
     ArrayList<Successor> successors = new ArrayList<>();
@@ -19,8 +20,8 @@ public class StateSuccessorsSA {
     final State[] stateBuffer = new State[8];
 
     private static final int PROB_CONNECT_CENTER = 80;
-    
-    private final int SUCCESSORS_LIMIT = 2000;
+
+    private final int SUCCESSORS_LIMIT = 20000;
     Random random = new Random(123);
 
     public StateSuccessorsSA(ProblemParameters problem) {
@@ -33,9 +34,9 @@ public class StateSuccessorsSA {
         State currentState = (State) objectState;
         successors.clear();
 
-        // Exaustive successors
         for (int i = 0; i < SUCCESSORS_LIMIT; ++i) {
             exaustiveConnections(currentState);
+            chainConnections(currentState);
         }
         return successors;
     }

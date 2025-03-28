@@ -6,6 +6,8 @@ import aima.search.informed.HillClimbingSearch;
 
 import java.util.List;
 import java.util.Iterator;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
@@ -35,9 +37,10 @@ public class SolutionSearch {
     }
 
     public SolutionSearch(State state, SuccessorFunction operators, HeuristicFunction heuristic, int iteration,
-            int stopIteration, int k, double lambda) {
+            int stepIteration, int k, double lambda) {
         problem = new Problem(state, operators, new FinalState(), heuristic);
-        search = new SimulatedAnnealingSearch(iteration, stopIteration, k, lambda);
+        search = new SimulatedAnnealingSearch(iteration, stepIteration, k, lambda);
+        // ((SimulatedAnnealingSearch) search).traceOn();
     }
 
     public void executeSearch() {
@@ -59,7 +62,7 @@ public class SolutionSearch {
 
             // THIS are extra
             setInstrumentation(agent.getInstrumentation());
-            setAccions(agent.getActions());
+            // setAccions(agent.getActions());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,8 +110,36 @@ public class SolutionSearch {
         return nodesexp;
     }
 
-    public void fitxerResultats() {
+    public void fitxerResultats(State board, int estat_inicial, String algoritme, int operadors, int heuristic,
+    int k, int iter, int passos_iter, double lambda) {
         // TODO if we want the result in a file
+        try {
+            File fitxer = new File("resultats.txt");
+            boolean nou = !fitxer.exists();
+            fitxer.createNewFile();
+            FileWriter out = new FileWriter(fitxer, true);
+            if (nou) {
+                // noms de variables
+                out.write(
+                        "N\tM\tncentrals\tnrepetidors\testat_inicial\tmaxrep\talpha\tbeta\tgamma\talgoritme\toperadors\theuristic\tk\titer\tpassos_iter\tlambda\ttemps\tnodes_exp\terror_inicial\terror_final\trepet_usats\n");
+            }
+            State board_final = getEstatFinal();
+            if (k == -1) {
+                // Ser� HillClimbing, no volem variables de SA
+                board_final.print();
+        
+            } else
+            {
+                board_final.print();
+                // TODO for SA
+                out.write("");
+            }
+
+            out.close();
+        } catch (Exception e) {
+            System.err.println("No s'ha pogut escriure el fitxer de resultats.");
+            System.err.println(e.toString());
+        }
     }
 
 }
