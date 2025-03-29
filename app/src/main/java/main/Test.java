@@ -102,13 +102,15 @@ public class Test {
         State bestSolutionState = state;
 
         // Try out different SuccessorFunctions
-        SuccessorFunction operators = new StateSuccessorsSA(state.problem);
+        SuccessorFunction operatorsSA = new StateSuccessorsSA(state.problem);
+        SuccessorFunction operatorsHC = new StateSuccessors(state.problem);
+
 
         // TODO change parameters
-        int iterationSA = 20000;
-        int stepIteration = 200; // baixar la tempratura despres de step iterations 
-        int k = 20; // factor per temperatura [0-20]
-        double lambda = 0.005; // factor de refrigeri en cada step [0.005-0.05]
+        int iterationSA = 100000;
+        int stepIteration = 1000; // baixar la tempratura despres de step iterations 
+        int k = 100; // factor per temperatura [0-20]
+        double lambda = 0.01; // factor de refrigeri en cada step [0.01-0.2]
 
         double averageHeuristic = 0;
         double averageTime = 0;
@@ -122,8 +124,13 @@ public class Test {
             System.out.println("Inicial heuristic (To minimize): " + inicialHeuristic);
 
             try {
-                SolutionSearch search = new SolutionSearch(state, operators, heuristic, iterationSA, stepIteration, k, lambda);
+                SolutionSearch search = new SolutionSearch(state, operatorsSA, heuristic, iterationSA, stepIteration, k, lambda);
                 search.executeSearch();
+
+                // execute HC after SA
+                // search = new SolutionSearch(search.getEstatFinal(), operatorsHC, heuristic);
+                // search.executeSearch();
+
                 System.out.println(search.getProperties());
                 averageTime += search.getTime()/iterations;
                 averageExpandNode += Integer.valueOf(search.getNodesexp()) / iterations;
@@ -143,7 +150,7 @@ public class Test {
                         centerUsed++;
                 }
                 System.out.println("#Centros Used: " + centerUsed + " / " + finalState.centersCount());
-                averageCenterUsed += centerUsed/finalState.centersCount()/iterations;
+                averageCenterUsed += (double) centerUsed/finalState.centersCount()/iterations;
 
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
