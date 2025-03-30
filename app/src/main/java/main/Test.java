@@ -25,6 +25,7 @@ public class Test {
         // Try out different SuccessorFunctions
         SuccessorFunction operators = new StateSuccessors(state.problem);
 
+        double averageInicalHeuristic = 0;
         double averageHeuristic = 0;
         double averageTime = 0;
         double averageExpandNode = 0;
@@ -39,6 +40,7 @@ public class Test {
 
             double inicialHeuristic = heuristic.getHeuristicValue(state);
             System.out.println("Inicial heuristic (To minimize): " + inicialHeuristic);
+            averageInicalHeuristic += inicialHeuristic / iterations;
 
             try {
                 SolutionSearch search = new SolutionSearch(state, operators, heuristic);
@@ -81,13 +83,14 @@ public class Test {
         }
 
         // bestSolutionState.print();
+        System.out.println("Avg Inicial Score: " + averageInicalHeuristic);
         System.out.println("Avg Score: " + averageHeuristic);
         System.out.println("Avg Time: " + averageTime + " ms");
         System.out.println("Avg Expanded Node: " + averageExpandNode);
         System.out.println("Avg Center Used: " + averageCenterUsed);
         System.out.println("Avg Cost: " + averageCost);
         System.out.println("Avg Volume: " + averageVolume);
-        System.out.println("");
+
         System.out.println("Best Score (To minimize): " + bestSolution);
         System.out.println("Best Cost: " + bestSolutionState.totalCost());
         System.out.println("Best Volume: " + bestSolutionState.totalVolume());
@@ -108,11 +111,12 @@ public class Test {
         SuccessorFunction operatorsHC = new StateSuccessors(state.problem);
 
         // TODO change parameters
-        int iterationSA = 100000;
-        int stepIteration = 1000; // baixar la tempratura despres de step iterations
-        int k = 100; // factor per temperatura [0-20]
+        int iterationSA = 10000;
+        int stepIteration = 100; // baixar la tempratura despres de step iterations
+        int k = 20; // factor per temperatura [0-20]
         double lambda = 0.01; // factor de refrigeri en cada step [0.01-0.2]
 
+        double averageInicalHeuristic = 0;
         double averageHeuristic = 0;
         double averageTime = 0;
         double averageExpandNode = 0;
@@ -126,6 +130,7 @@ public class Test {
 
             double inicialHeuristic = heuristic.getHeuristicValue(state);
             System.out.println("Inicial heuristic (To minimize): " + inicialHeuristic);
+            averageInicalHeuristic += inicialHeuristic / iterations;
 
             try {
                 SolutionSearch search = new SolutionSearch(state, operatorsSA, heuristic, iterationSA, stepIteration, k,
@@ -174,6 +179,7 @@ public class Test {
         }
 
         // bestSolutionState.print();
+        System.out.println("Avg Inicial Score: " + averageInicalHeuristic);
         System.out.println("Avg Score: " + averageHeuristic);
         System.out.println("Avg Time: " + averageTime + " ms");
         System.out.println("Avg Expanded Node: " + averageExpandNode);
