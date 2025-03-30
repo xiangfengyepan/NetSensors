@@ -31,7 +31,7 @@ public final class InitialState {
                 }
             } else {
                 int index = 0;
-                int n = src.nearestSensors().length / 2;
+                int n = Math.max(2, src.nearestSensors().length / 2);
 
                 do {
                     // See Function in [desmos.com]: \operatorname{round}\left(n\cdot x^{g}\right)
