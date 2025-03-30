@@ -7,13 +7,12 @@ import IA.State.State;
 import IA.State.ProblemParameters.Sensor;
 
 public final class InitialState {
-    private static final int PROB_CONNECT_CENTER = 80;
+    private static final int PROB_CONNECT_CENTER = 100;
     private static final double SENSORS_DEGREE = 4.;
     private static final Random random = new Random(469874635498745L);
 
-    public static void inilializeConnections(State state)
-    {
-        inilializeConnections2(state);
+    public static void inilializeConnections(State state) {
+        inilializeConnections1(state);
     }
 
     private static void inilializeConnections1(State state) {
@@ -51,22 +50,11 @@ public final class InitialState {
         for (int srcId = 0; srcId < state.sensorsCount(); ++srcId) {
             Sensor src = state.problem.sensor(srcId);
 
-            int distCenter = src.sqDistanceTo(state.problem.center(src.nearestCenters()[0]));
-            int distSensor = src.sqDistanceTo(state.problem.sensor(src.nearestSensors()[0]));
-
-            boolean connectToCenter = distCenter <= distSensor || random.nextInt(100) >= PROB_CONNECT_CENTER;
-
-            if (connectToCenter) {
-                for (int dstId : src.nearestCenters()) {
-                    if (state.connectToCenter(srcId, dstId) != ConnectionResult.UnableToConnect)
-                        break;
-                }
-            } else {
-                for (int sensorDstId : src.nearestSensors()) {
-                    if (state.connectToSensor(srcId, sensorDstId) != ConnectionResult.UnableToConnect)
-                        break;
-                }
+            for (int dstId : src.nearestCenters()) {
+                if (state.connectToCenter(srcId, dstId) != ConnectionResult.UnableToConnect)
+                    break;
             }
+
         }
     }
 
