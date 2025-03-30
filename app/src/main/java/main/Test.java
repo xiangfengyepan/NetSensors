@@ -108,7 +108,6 @@ public class Test {
 
         // Try out different SuccessorFunctions
         SuccessorFunction operatorsSA = new StateSuccessorsSA(state.problem);
-        SuccessorFunction operatorsHC = new StateSuccessors(state.problem);
 
         // TODO change parameters
         int iterationSA = 10000;
@@ -130,7 +129,7 @@ public class Test {
 
             double inicialHeuristic = heuristic.getHeuristicValue(state);
             System.out.println("Inicial heuristic (To minimize): " + inicialHeuristic);
-            averageInicalHeuristic += inicialHeuristic / iterations;
+            averageInicalHeuristic += inicialHeuristic;
 
             try {
                 SolutionSearch search = new SolutionSearch(state, operatorsSA, heuristic, iterationSA, stepIteration, k,
@@ -142,16 +141,16 @@ public class Test {
                 // search.executeSearch();
 
                 System.out.println(search.getProperties());
-                averageTime += search.getTime() / iterations;
-                averageExpandNode += Integer.valueOf(search.getNodesexp()) / iterations;
+                averageTime += search.getTime();
+                averageExpandNode += Integer.valueOf(search.getNodesexp());
 
                 // Print final state
                 State finalState = search.getEstatFinal();
                 double finalHeuristic = heuristic.getHeuristicValue(finalState);
-                averageHeuristic += finalHeuristic / iterations;
+                averageHeuristic += finalHeuristic;
 
-                averageCost += finalState.totalCost() / iterations;
-                averageVolume += finalState.totalVolume() / iterations;
+                averageCost += finalState.totalCost();
+                averageVolume += finalState.totalVolume();
 
                 System.out.println("Cost: " + finalState.totalCost());
                 System.out.println("Volume: " + finalState.totalVolume());
@@ -162,7 +161,7 @@ public class Test {
                         centerUsed++;
                 }
                 System.out.println("#Centros Used: " + centerUsed + " / " + finalState.centersCount());
-                averageCenterUsed += (double) centerUsed / finalState.centersCount() / iterations;
+                averageCenterUsed += (double) centerUsed / finalState.centersCount();
 
                 if (finalHeuristic < bestSolution) {
                     bestSolution = finalHeuristic;
@@ -179,13 +178,13 @@ public class Test {
         }
 
         // bestSolutionState.print();
-        System.out.println("Avg Inicial Score: " + averageInicalHeuristic);
-        System.out.println("Avg Score: " + averageHeuristic);
-        System.out.println("Avg Time: " + averageTime + " ms");
-        System.out.println("Avg Expanded Node: " + averageExpandNode);
-        System.out.println("Avg Center Used: " + averageCenterUsed);
-        System.out.println("Avg Cost: " + averageCost);
-        System.out.println("Avg Volume: " + averageVolume);
+        System.out.println("Avg Inicial Score: " + averageInicalHeuristic / iterations);
+        System.out.println("Avg Score: " + averageHeuristic / iterations);
+        System.out.println("Avg Time: " + averageTime / iterations + " ms");
+        System.out.println("Avg Expanded Node: " + averageExpandNode / iterations);
+        System.out.println("Avg Center Used: " + averageCenterUsed / iterations);
+        System.out.println("Avg Cost: " + averageCost / iterations);
+        System.out.println("Avg Volume: " + averageVolume / iterations);
         System.out.println("");
         System.out.println("Best Score (To minimize): " + bestSolution);
         System.out.println("Best Cost: " + bestSolutionState.totalCost());
