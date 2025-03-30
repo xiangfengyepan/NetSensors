@@ -21,7 +21,7 @@ public class StateSuccessorsSA implements SuccessorFunction {
 
     private static final int PROB_CONNECT_CENTER = 80;
 
-    private final int SUCCESSORS_LIMIT = 20000;
+    private final int SUCCESSORS_LIMIT = 1000;
     Random random = new Random(123);
 
     public StateSuccessorsSA(ProblemParameters problem) {
@@ -34,10 +34,10 @@ public class StateSuccessorsSA implements SuccessorFunction {
         State currentState = (State) objectState;
         successors.clear();
 
-        for (int i = 0; i < SUCCESSORS_LIMIT; ++i) {
-            exaustiveConnections(currentState);
-            chainConnections(currentState);
+        while (successors.size() < SUCCESSORS_LIMIT) {
+            exhaustiveConnections(currentState);
         }
+        // exaustiveConnections(currentState);
         return successors;
     }
 
@@ -52,9 +52,10 @@ public class StateSuccessorsSA implements SuccessorFunction {
 
     void addSuccessor(State successor, String action) {
         successors.add(new Successor(action, successor));
+
     }
 
-    void exaustiveConnections(State state) {
+    void exhaustiveConnections(State state) {
         int srcId = random.nextInt(state.sensorsCount());
         Sensor sensorSrc = problem.sensor(srcId);
 
@@ -80,6 +81,75 @@ public class StateSuccessorsSA implements SuccessorFunction {
             reuseState(newState);
         }
     }
+
+    void exaustiveConnections(State state) {
+        for (int src = 0; src < state.sensorsCount(); ++src) {
+            Sensor sensorSrc = problem.sensor(src);
+
+            int[] nearestCenters = sensorSrc.nearestCenters();
+            int[] nearestSensors = sensorSrc.nearestSensors();
+
+            for (int i = 0; i < nearestCenters.length; ++i) {
+                int centerDst = nearestCenters[i];
+
+                State newState = newState(state);
+                if (newState.connectToCenter(src, centerDst) == ConnectionResult.Successfull) {
+                    addSuccessor(newState, "connectCenter");
+                }
+                reuseState(newState);
+            }
+
+            for (int i = 0; i < nearestSensors.length; ++i) {
+                int dst = nearestSensors[i];
+
+                State newState = newState(state);
+                if (newState.connectToSensor(src, dst) == ConnectionResult.Successfull) {
+                    addSuccessor(newState, "connectSensors");
+                }
+                reuseState(newState);
+
+            }
+        }
+    }
+
+    void exhaustiveConnections(State state, int n) {
+        // Crear una copia del estado original para realizar las conexiones
+        State newState = newState(state);
+    
+        for (int i = 0; i < n; i++) {
+            // Obtener un sensor de origen aleatorio
+            int srcId = random.nextInt(state.sensorsCount());
+            Sensor sensorSrc = problem.sensor(srcId);
+    
+            // Calcular la distancia para el sensor
+            int distCenter = sensorSrc.sqDistanceTo(state.problem.center(sensorSrc.nearestCenters()[0]));
+            int distSensor = sensorSrc.sqDistanceTo(state.problem.sensor(sensorSrc.nearestSensors()[0]));
+            boolean connectToCenter = distCenter <= distSensor || random.nextInt(100) >= PROB_CONNECT_CENTER;
+    
+            // Intentar conectar el sensor a su destino
+            if (connectToCenter) {
+                // Conectar al centro aleatorio
+                int centerDst = random.nextInt(state.centersCount());
+    
+                if (newState.connectToCenter(srcId, centerDst) == ConnectionResult.Successfull) {
+                    //
+                }
+            } else {
+                // Conectar al sensor aleatorio
+                int sensorDst = random.nextInt(state.sensorsCount());
+    
+                if (newState.connectToSensor(srcId, sensorDst) == ConnectionResult.Successfull) {
+                    //
+                }
+            }
+        }
+        addSuccessor(newState, "connectSensor");
+    
+        // Reutilizar el estado al final, luego de aplicar todas las conexiones
+        reuseState(newState);
+    }
+    
+    
 
     void chainConnections(State state) {
         // first connection

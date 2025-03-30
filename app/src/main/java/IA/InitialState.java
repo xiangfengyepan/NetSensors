@@ -7,7 +7,7 @@ import IA.State.State;
 import IA.State.ProblemParameters.Sensor;
 
 public final class InitialState {
-    private static final int PROB_CONNECT_CENTER = 100;
+    private static final int PROB_CONNECT_CENTER = 80;
     private static final double SENSORS_DEGREE = 4.;
     private static final Random random = new Random(469874635498745L);
 
