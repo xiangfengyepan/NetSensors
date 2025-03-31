@@ -50,11 +50,26 @@ public final class InitialState {
         for (int srcId = 0; srcId < state.sensorsCount(); ++srcId) {
             Sensor src = state.problem.sensor(srcId);
 
-            for (int dstId : src.nearestCenters()) {
-                if (state.connectToCenter(srcId, dstId) != ConnectionResult.UnableToConnect)
-                    break;
-            }
+            int distCenter = src.sqDistanceTo(state.problem.center(src.nearestCenters()[0]));
+            int distSensor = src.sqDistanceTo(state.problem.sensor(src.nearestSensors()[0]));
 
+            boolean connectToCenter = distCenter <= distSensor || random.nextInt(100) >= 100;
+
+            if (connectToCenter) {
+                for (int dstId : src.nearestCenters()) {
+                    if (state.connectToCenter(srcId, dstId) != ConnectionResult.UnableToConnect)
+                        break;
+                }
+            } else {
+                int index = 0;
+                int n = Math.max(2, src.nearestSensors().length / 2);
+
+                do {
+                    // See Function in [desmos.com]: \operatorname{round}\left(n\cdot x^{g}\right)
+                    index = (int) Math.round(n * Math.pow(random.nextDouble(), SENSORS_DEGREE));
+                } while (state.connectToSensor(srcId,
+                        src.nearestSensors()[index]) == ConnectionResult.UnableToConnect);
+            }
         }
     }
 
